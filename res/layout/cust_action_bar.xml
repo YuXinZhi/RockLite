@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/action_bar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/gray"
-    android:id="@+id/action_bar"
     android:clickable="true" >
 
     <ImageView
@@ -50,7 +50,7 @@
         android:layout_toLeftOf="@+id/more"
         android:clickable="true"
         android:padding="8dp"
-        android:src="@drawable/desk2_btn_love_prs" />
+        android:src="@drawable/action_favorite" />
 
     <ImageView
         android:id="@+id/more"
@@ -61,6 +61,6 @@
         android:background="@drawable/pressed_to"
         android:clickable="true"
         android:padding="8dp"
-        android:src="@drawable/actionbar_more" />
+        android:src="@drawable/actionbar_internet" />
 
 </RelativeLayout>

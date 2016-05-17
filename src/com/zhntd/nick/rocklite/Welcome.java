@@ -32,7 +32,7 @@ public class Welcome extends Activity {
 
             @Override
             public void onFinish() {
-                Intent intent = new Intent(Welcome.this, RockLite.class);
+                Intent intent = new Intent(Welcome.this, MainActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 Welcome.this.finish();

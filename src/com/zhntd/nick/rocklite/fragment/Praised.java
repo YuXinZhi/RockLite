@@ -17,7 +17,7 @@ import android.widget.ListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zhntd.nick.rocklite.Project;
 import com.zhntd.nick.rocklite.R;
-import com.zhntd.nick.rocklite.RockLite;
+import com.zhntd.nick.rocklite.MainActivity;
 import com.zhntd.nick.rocklite.loaders.TrackListAdapter;
 import com.zhntd.nick.rocklite.modle.Track;
 import com.zhntd.nick.rocklite.service.CoreService;
@@ -28,7 +28,7 @@ public class Praised extends Base {
 	private ListView mListView;
 	private TrackListAdapter mAdapter;
 
-	private RockLite mActivity;
+	private MainActivity mActivity;
 	private CoreService mServiceCallback;
 
 	@Override
@@ -41,7 +41,7 @@ public class Praised extends Base {
 
 	@Override
 	public void onAttach(Activity activity) {
-		mActivity = (RockLite) activity;
+		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
 		Log.i("nick", mServiceCallback.toString());
 		super.onAttach(activity);

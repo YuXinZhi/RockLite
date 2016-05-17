@@ -29,7 +29,7 @@ import android.widget.RemoteViews;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zhntd.nick.rocklite.Project;
 import com.zhntd.nick.rocklite.R;
-import com.zhntd.nick.rocklite.RockLite;
+import com.zhntd.nick.rocklite.MainActivity;
 import com.zhntd.nick.rocklite.modle.Track;
 import com.zhntd.nick.rocklite.receiver.TrackNextReceiver;
 import com.zhntd.nick.rocklite.receiver.TrackPlayReceiver;
@@ -67,7 +67,7 @@ public class CoreService extends Service {
 	private Notification mNotification;
 	private int NOTI_ID = 1;
 
-	private RockLite mActivityCallback;
+	private MainActivity mActivityCallback;
 
 	private QuerTools mQuerTools;
 
@@ -307,7 +307,7 @@ public class CoreService extends Service {
 		return myBinder;
 	}
 
-	public void setActivityCallback(RockLite activity) {
+	public void setActivityCallback(MainActivity activity) {
 		mStateChangedListener = activity;
 		mActivityCallback = activity;
 	}
