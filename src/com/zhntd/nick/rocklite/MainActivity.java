@@ -168,6 +168,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mFragments = new ArrayList<Base>();
 		mFragments.add(new AllTracks());
 		mFragments.add(new Praised());
+		mFragments.add(new Online());
 	}
 
 	private void styleActionBar() {
@@ -178,7 +179,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		actionBar.setDisplayShowHomeEnabled(false);
 		actionBar.setCustomView(R.layout.cust_action_bar);
 
-		mLocalImageView = (ImageView) findViewById(R.id.app_icon);
+		mLogoImageView = (ImageView) findViewById(R.id.app_icon);
 		mFavouriteImageView = (ImageView) findViewById(R.id.favour);
 		mLocalImageView = (ImageView) findViewById(R.id.local);
 		mInternetImageView = (ImageView) findViewById(R.id.more);
@@ -218,6 +219,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mNaViews = new ArrayList<ImageView>();
 		mNaViews.add(mLocalImageView);
 		mNaViews.add(mFavouriteImageView);
+		mNaViews.add(mInternetImageView);
 	}
 
 	private void updateNaviItem(int position) {

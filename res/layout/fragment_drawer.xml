@@ -2,19 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent" >
+    android:background="@color/gray" >
 
     <com.zhntd.nick.rocklite.views.RobotoLightTextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
+        android:drawableLeft="@drawable/settings"
         android:gravity="center"
-        android:text="Hi, All \n\n This ia a blur effect for android, \n Good looks wow,\n
-        Visit github@nick for more.  \n\n Thanks, Nick"
-        android:textColor="@color/gray_light"
+        android:text="设置"
         android:textSize="@dimen/font_size_actionbar" />
- 
+
 </RelativeLayout>

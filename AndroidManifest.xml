@@ -8,6 +8,7 @@
         android:minSdkVersion="16"
         android:targetSdkVersion="17" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -26,6 +27,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.zhntd.nick.rocklite.MainActivity" >
+        </activity>
+        <activity android:name="com.zhntd.nick.rocklite.fragment.OnlineMusicSite" >
         </activity>
 
         <service android:name="com.zhntd.nick.rocklite.service.CoreService" >
