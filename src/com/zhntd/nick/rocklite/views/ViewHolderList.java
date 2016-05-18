@@ -12,13 +12,15 @@ import android.widget.TextView;
  */
 public class ViewHolderList {
 
-    public TextView mTitleView;
-    public TextView mArtistView;
-    public ImageView mArtView;
+	public TextView mTitleView;
+	public TextView mArtistView;
+	public ImageView mArtView;
+	public TextView mDuration;
 
-    public ViewHolderList(View rootView) {
-        this.mTitleView = (TextView) rootView.findViewById(R.id.line_one);
-        this.mArtistView = (TextView) rootView.findViewById(R.id.line_two);
-        this.mArtView = (ImageView) rootView.findViewById(R.id.art);
-    }
+	public ViewHolderList(View rootView) {
+		this.mTitleView = (TextView) rootView.findViewById(R.id.line_one);
+		this.mArtistView = (TextView) rootView.findViewById(R.id.line_two);
+		this.mArtView = (ImageView) rootView.findViewById(R.id.art);
+		this.mDuration = (TextView) rootView.findViewById(R.id.tv_duration);
+	}
 }

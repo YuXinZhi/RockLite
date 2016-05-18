@@ -3,6 +3,7 @@ package com.zhntd.nick.rocklite.fragment;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,8 +31,7 @@ public class AllTracks extends Base {
 	private CoreService mServiceCallback;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mListView = (ListView) inflater.inflate(R.layout.fragment_all, null);
 		display();
 		return mListView;
@@ -66,8 +66,7 @@ public class AllTracks extends Base {
 	 */
 	void inflateListView(final List<Track> tracks) {
 
-		mAdapter = new TrackListAdapter(tracks, getActivity(),
-				ImageLoader.getInstance());
+		mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
 		mListView.setAdapter(mAdapter);
 
 		mServiceCallback.setupPLayList(tracks);
@@ -75,13 +74,16 @@ public class AllTracks extends Base {
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 				if (mServiceCallback.getPlayList() != tracks)
 					mServiceCallback.setupPLayList(tracks);
 				mServiceCallback.setCurrentCursor(position);
 				mServiceCallback.playTrack(position);
+				// Intent intent = new Intent(mActivity, PlayActivity.class);
+				// Bundle bundle =new Bundle();
+				// intent.putExtras(bundle);
+				// startActivity(intent);
 
 			}
 		});
@@ -103,7 +105,7 @@ public class AllTracks extends Base {
 
 	@Override
 	public void onPraisedPressed() {
-		
+
 	}
 
 }

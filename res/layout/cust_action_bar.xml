@@ -27,7 +27,7 @@
         android:background="@drawable/pressed_to"
         android:clickable="true"
         android:gravity="center|left"
-        android:text="ROCKLITE"
+        android:text="Music"
         android:textColor="@color/gray_light"
         android:textSize="@dimen/font_size_actionbar" />
 
@@ -47,13 +47,13 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/more"
+        android:layout_toLeftOf="@+id/internet"
         android:clickable="true"
         android:padding="8dp"
         android:src="@drawable/action_favorite" />
 
     <ImageView
-        android:id="@+id/more"
+        android:id="@+id/internet"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"

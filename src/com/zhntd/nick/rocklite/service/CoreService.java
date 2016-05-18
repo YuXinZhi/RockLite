@@ -37,9 +37,8 @@ import com.zhntd.nick.rocklite.utils.QuerTools;
 import com.zhntd.nick.rocklite.views.BitmapToBlur;
 
 /**
- * @author nick
- * @date Aug 18, 2014
- * @time 12:42:49 PM TODO
+ * 主要服务
+ *
  */
 public class CoreService extends Service {
 
@@ -49,14 +48,14 @@ public class CoreService extends Service {
 	private MyBinder myBinder = new MyBinder();
 	private StateChangedListener mStateChangedListener;
 	private final MediaPlayer mediaPlayer = new MediaPlayer();
-	// data
+	// 播放列表
 	private List<Track> mPlayList;
 
-	// index
+	// 当前歌曲在列表中的位置
 	private int mCursor;
 
-	BroadcastReceiver mHeadSetPlugBroadcastReceiver, mPhoneStateChangeListener,
-			mNotiControlReceiver;
+	// 电话状态监听器
+	BroadcastReceiver mHeadSetPlugBroadcastReceiver, mPhoneStateChangeListener, mNotiControlReceiver;
 
 	private RemoteViews mRemoteView;
 	// intent
@@ -71,16 +70,11 @@ public class CoreService extends Service {
 
 	private QuerTools mQuerTools;
 
-	/**
-	 * @param cursor
-	 */
+	// 设置歌曲列表当前歌曲
 	public void setCurrentCursor(int cursor) {
 		this.mCursor = cursor;
 	}
 
-	/**
-	 * @return
-	 */
 	public int getCurrentCursor() {
 		return this.mCursor;
 	}
@@ -104,8 +98,7 @@ public class CoreService extends Service {
 	public String getCurrentAlbumPath() {
 		String priFix = "content://media/external/audio/albumart";
 		if (mPlayList != null)
-			return priFix + File.separator
-					+ mPlayList.get(mCursor).getAlbumId();
+			return priFix + File.separator + mPlayList.get(mCursor).getAlbumId();
 		return null;
 	}
 
@@ -124,15 +117,13 @@ public class CoreService extends Service {
 		return ImageLoader.getInstance().loadImageSync(getCurrentAlbumPath());
 	}
 
-	/**
-	 * @return
-	 */
+	// 背景图片
 	public Drawable getBluredCurrentArt() {
 		Bitmap bm = getCurrentTrackArt();
 		if (bm == null) {
 			bm = BitmapFactory.decodeResource(getResources(), R.drawable.default_artist);
 		}
-			return BitmapToBlur.BoxBlurFilter(bm);
+		return BitmapToBlur.BoxBlurFilter(bm);
 	}
 
 	public String getCurrentArtist() {
@@ -161,8 +152,7 @@ public class CoreService extends Service {
 	public Uri getCurrentAlbumUri() {
 		if (mPlayList != null) {
 			String urlPrefix = "content://media/external/audio/albumart";
-			String urlString = urlPrefix + File.separator
-					+ getPlayList().get(getCurrentCursor()).getAlbumId();
+			String urlString = urlPrefix + File.separator + getPlayList().get(getCurrentCursor()).getAlbumId();
 			return Uri.parse(urlString);
 		}
 		return null;
@@ -258,36 +248,35 @@ public class CoreService extends Service {
 	}
 
 	/**
+	 * 收藏按钮被按下的回调
+	 * 
 	 * @return
 	 */
 	public boolean onPraisedBtnPressed() {
 
-		boolean hadPraised = mQuerTools.checkIfHasAsFavourite(
-				getCurrentSongId(), Project.DB_PRAISED_NAME,
+		boolean hadPraised = mQuerTools.checkIfHasAsFavourite(getCurrentSongId(), Project.DB_PRAISED_NAME,
 				Project.TB_PRAISED_NAME, 1);
 
 		if (!hadPraised) {
 			addCurrentToDataBase();
 			return true;
 		} else {
-			mQuerTools.removeTrackFrmDatabase(getCurrentSongId(),
-					Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME, 1);
+			mQuerTools.removeTrackFrmDatabase(getCurrentSongId(), Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME, 1);
 			return false;
 		}
 
 	}
-	
+
 	/**
 	 * @return
 	 */
 	public boolean checkIfPraised() {
-		return  mQuerTools.checkIfHasAsFavourite(
-				getCurrentSongId(), Project.DB_PRAISED_NAME,
-				Project.TB_PRAISED_NAME, 1);
+		return mQuerTools.checkIfHasAsFavourite(getCurrentSongId(), Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME,
+				1);
 	}
 
 	/**
-	 *  add to.
+	 * add to.
 	 */
 	private void addCurrentToDataBase() {
 
@@ -298,8 +287,7 @@ public class CoreService extends Service {
 		values.put("SONG_ID", getCurrentSongId());
 		values.put("ALBUM_ID", getCurrentAlbumId());
 
-		mQuerTools.addToDb(values, Project.DB_PRAISED_NAME,
-				Project.TB_PRAISED_NAME, 1);
+		mQuerTools.addToDb(values, Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME, 1);
 	}
 
 	@Override
@@ -308,6 +296,7 @@ public class CoreService extends Service {
 	}
 
 	public void setActivityCallback(MainActivity activity) {
+		// 监听activity状态变化
 		mStateChangedListener = activity;
 		mActivityCallback = activity;
 	}
@@ -342,13 +331,10 @@ public class CoreService extends Service {
 
 	private void initNotification() {
 
-		mRemoteView = new RemoteViews(getPackageName(),
-				R.layout.layout_notification);
+		mRemoteView = new RemoteViews(getPackageName(), R.layout.layout_notification);
 
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-				this).setContent(mRemoteView)
-				.setContentTitle(getCurrentTitle())
-				.setContentText(getCurrentTitle()).setTicker(getCurrentTitle())
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setContent(mRemoteView)
+				.setContentTitle(getCurrentTitle()).setContentText(getCurrentTitle()).setTicker(getCurrentTitle())
 				.setSmallIcon(R.drawable.ic_launcher).setOngoing(true);
 
 		if (playIntent == null) {
@@ -358,19 +344,15 @@ public class CoreService extends Service {
 			nextIntent = new Intent(this, TrackNextReceiver.class);
 		}
 		if (playPendingIntent == null) {
-			playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent,
-					0);
+			playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent, 0);
 		}
 		if (nextPendingIntent == null) {
-			nextPendingIntent = PendingIntent.getBroadcast(this, 0, nextIntent,
-					0);
+			nextPendingIntent = PendingIntent.getBroadcast(this, 0, nextIntent, 0);
 		}
 
 		// onClick
-		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_next,
-				nextPendingIntent);
-		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_pause,
-				playPendingIntent);
+		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_next, nextPendingIntent);
+		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_pause, playPendingIntent);
 		// manager
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotification = mBuilder.build();
@@ -382,23 +364,21 @@ public class CoreService extends Service {
 	 */
 	public void updateNotification() {
 
-		Log.i("nick_music", "update notification" + getCurrentCursor());
+		Log.i("music", "update notification" + getCurrentCursor());
 
 		mRemoteView.setTextViewText(R.id.noti_title, getCurrentTitle());
 
 		if (getIsPlaying()) {
-			mRemoteView.setImageViewResource(R.id.btn_noti_pause,
-					R.drawable.notification_pause);
+			mRemoteView.setImageViewResource(R.id.btn_noti_pause, R.drawable.notification_pause);
 		} else {
-			mRemoteView.setImageViewResource(R.id.btn_noti_pause,
-					R.drawable.notification_play);
+			mRemoteView.setImageViewResource(R.id.btn_noti_pause, R.drawable.notification_play);
 		}
 
 		mRemoteView.setImageViewUri(R.id.iv_art_noti, getCurrentAlbumUri());
 
 		mNotificationManager.notify(NOTI_ID, mNotification);
 	}
-	
+
 	public void cancelNoti() {
 		mNotificationManager.cancel(NOTI_ID);
 	}
@@ -434,11 +414,6 @@ public class CoreService extends Service {
 		registerReceiver(mNotiControlReceiver, filter);
 	}
 
-	/**
-	 * @author nick
-	 * @date Aug 18, 2014
-	 * @time 1:05:08 PM TODO
-	 */
 	public class MyBinder extends Binder {
 		public CoreService getService() {
 			return CoreService.this;
@@ -461,11 +436,6 @@ public class CoreService extends Service {
 		}
 	}
 
-	/**
-	 * @author nick
-	 * @date Aug 18, 2014
-	 * @time 1:05:06 PM TODO
-	 */
 	public interface StateChangedListener {
 		void onPlayStateChanged();
 	}
@@ -478,6 +448,7 @@ public class CoreService extends Service {
 		}
 	};
 
+	// 监听耳机插入状态
 	private void initHeadPluggedListener() {
 
 		IntentFilter intentFilter = new IntentFilter();
@@ -497,7 +468,9 @@ public class CoreService extends Service {
 	}
 
 	private void initPhoneStateChangeListener() {
-
+		/**
+		 * 动态注册IntentFilter，监听通话状态
+		 */
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(Intent.ACTION_CALL);
 		intentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
@@ -531,5 +504,10 @@ public class CoreService extends Service {
 
 		mActivityCallback.onBlurReady(drawable);
 	}
+
+	// public void seek(int msec) {
+	// if(!isPlaying()) return;
+	// mPlayer.seekTo(msec);
+	// }
 
 }

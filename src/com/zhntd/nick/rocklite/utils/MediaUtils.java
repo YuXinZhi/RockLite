@@ -1,7 +1,12 @@
 package com.zhntd.nick.rocklite.utils;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
+import java.util.Locale;
+
+import com.zhntd.nick.rocklite.R;
+import com.zhntd.nick.rocklite.modle.Track;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -12,8 +17,6 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.MediaColumns;
 
-import com.zhntd.nick.rocklite.modle.Track;
-
 @SuppressLint("DefaultLocale")
 public class MediaUtils {
 
@@ -21,6 +24,11 @@ public class MediaUtils {
      * @param c
      * @return get all the tracks frm android
      */
+	// 查询外部存储
+	/**
+	 * 访问sdcard中的音频文件的URI为MediaStore.Audio.Media.EXTERNAL_CONTENT_URI，
+	 * 为了使播放列表显示所以音乐文件的信息，这里需要查询sdcard里的音频文件，并把查询到的信息保存在Cursor中
+	 */
     public static List<Track> getTrackList(Context c) {
 
         List<Track> list = new ArrayList<Track>();
@@ -41,8 +49,9 @@ public class MediaUtils {
 
                 int time = cursor.getInt(cursor
                         .getColumnIndexOrThrow(AudioColumns.DURATION));
-                time = time / 60000;
+                //time = time / 60000;
 
+                String  duration=MediaUtils.makeTimeString(c, time);
                 String name = cursor.getString(cursor
                         .getColumnIndexOrThrow(MediaColumns.DISPLAY_NAME));
                 //
@@ -63,6 +72,7 @@ public class MediaUtils {
                     track.setId(id);
                     track.setUrl(url);
                     track.setAlbumId(albumid);
+                    track.setDuration(time);
                     list.add(track);
                 }
             }
@@ -77,5 +87,33 @@ public class MediaUtils {
         return list;
 
     }
+    
+    
+    private static StringBuilder sFormatBuilder = new StringBuilder();
+	private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
+	private static final Object[] sTimeArgs = new Object[5];
+
+	//格式化歌曲时间
+	public static String makeTimeString(Context context, long duration) {
+		// 毫秒转换成秒
+		duration = duration / 1000;
+		String durationformat = context
+				.getString(duration < 3600 ? R.string.durationformatshort : R.string.durationformatlong);
+
+		/*
+		 * Provide multiple arguments so the format can be changed easily by
+		 * modifying the xml.
+		 */
+		sFormatBuilder.setLength(0);
+
+		final Object[] timeArgs = sTimeArgs;
+		timeArgs[0] = duration / 3600;
+		timeArgs[1] = duration / 60;
+		timeArgs[2] = (duration / 60) % 60;
+		timeArgs[3] = duration;
+		timeArgs[4] = duration % 60;
+
+		return sFormatter.format(durationformat, timeArgs).toString();
+	}
 
 }

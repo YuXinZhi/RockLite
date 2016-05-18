@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.audiofx.Visualizer.MeasurementPeakRms;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.zhntd.nick.rocklite.R;
 import com.zhntd.nick.rocklite.modle.Track;
+import com.zhntd.nick.rocklite.utils.MediaUtils;
 import com.zhntd.nick.rocklite.views.ViewHolderList;
 
 /**
@@ -80,6 +82,7 @@ public class TrackListAdapter extends BaseAdapter {
 		Track track = mTracks.get(position);
 		mViewHolderList.mTitleView.setText(track.getTitle());
 		mViewHolderList.mArtistView.setText(track.getArtist());
+		mViewHolderList.mDuration.setText(MediaUtils.makeTimeString(mContext, track.getDuration()));
 		// art
 		String uri = mArtworkUri + File.separator + track.getAlbumId();
 

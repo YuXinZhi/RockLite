@@ -48,7 +48,7 @@ public class QuerTools {
 			resultList = new ArrayList<Track>();
 
 			// TITLE TEXT,ARTIST TEXT,ALBUM TEXT,DURATION TEXT,LETTER TEXT,
-			// PATH TEXT,SONG_ID INTEGER,ALBUM_ID INTEGER
+			// PATH TEXT,SONG_ID INTEGER,ALBUM_ID INTEGER,DURATION LONG
 			while (!cursor.isAfterLast() && cursor.getCount() > 0) {
 				Log.i(TAG,
 						"begin---------finding in db------------>>>>>>>>>>>>>>>>>>>");

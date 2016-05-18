@@ -45,6 +45,10 @@ import com.zhntd.nick.rocklite.service.CoreService;
 import com.zhntd.nick.rocklite.service.CoreService.MyBinder;
 import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
 
+/**
+ * 主页面
+ *
+ */
 public class MainActivity extends FragmentActivity implements OnClickListener, StateChangedListener {
 
 	private ServiceConnection mServiceConnection;
@@ -52,23 +56,26 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
+	// Actionbar中的图标
 	private ImageView mLogoImageView, mLocalImageView, mFavouriteImageView, mInternetImageView;
 	private List<ImageView> mNaViews;
 
+	// ViewPager中的各个子页面
 	private List<Base> mFragments;
 
 	private Animation mAnimation, mAnimationFade;
 
 	private ViewPager mViewPager;
 
-	// control buttons
+	// 底部控制栏控制按钮
 	private ImageButton mPlayButton, mNextButton, mPreviousButton, mPraiseButton;
 	private TextView titleTextView;
 	private ImageView mArtImageView;
 
+	// 根布局
 	private RelativeLayout mRootLayout;
 
-	// menus
+	// 抽屉式菜单
 	private MenuDrawer mNavigationDrawerFragment;
 	private DrawerLayout mDrawerLayout = null;
 
@@ -82,20 +89,26 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			mRootLayout = (RelativeLayout) findViewById(R.id.root_layout);
 		}
 
+		// 初始化Actionbar
 		styleActionBar();
 
+		// 初始化控制栏
 		findControlButtons();
 
 		initImageLoader(this);
 
+		// 初始化子页面
 		initPages();
+		// 绑定服务
 		bindToService();
+		// 启动服务
 		startService();
 
 		new SwitchAnimationUtil().startAnimation(getWindow().getDecorView(), AnimationType.SCALE);
 
 		initAnim();
 
+		// 初始化菜单
 		initDrawer();
 
 	}
@@ -110,14 +123,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	private void initDrawer() {
 		mNavigationDrawerFragment = (MenuDrawer) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-		// Set up the drawer.
+		// 设置菜单布局
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
-		// init drawerLayout
+		// 初始化菜单
 		mDrawerLayout = mNavigationDrawerFragment.mDrawerLayout;
 	}
 
-	// open or close the menu
+	// 控制菜单
 	private void toogleDrawer() {
 
 		if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
@@ -134,20 +147,20 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			toogleDrawer();
 			return true;
 		}
-
 		return super.onKeyDown(keyCode, event);
 	}
 
 	private void initPager() {
 
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-		// Set up the ViewPager with the sections adapter.
+		// 设置ViewPager
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
 
 			@Override
 			public void onPageSelected(int position) {
+				// Actionbar中被选中的图标同步更新
 				updateNaviItem(position);
 			}
 
@@ -172,22 +185,25 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	}
 
 	private void styleActionBar() {
-		// Set up the action bar
+		// 设置Actionbar属性
 		final ActionBar actionBar = getActionBar();
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setDisplayShowCustomEnabled(true);
 		actionBar.setDisplayShowHomeEnabled(false);
 		actionBar.setCustomView(R.layout.cust_action_bar);
 
+		// 4个图标
 		mLogoImageView = (ImageView) findViewById(R.id.app_icon);
 		mFavouriteImageView = (ImageView) findViewById(R.id.favour);
 		mLocalImageView = (ImageView) findViewById(R.id.local);
-		mInternetImageView = (ImageView) findViewById(R.id.more);
+		mInternetImageView = (ImageView) findViewById(R.id.internet);
 
+		// 设置图标监听器
 		mLogoImageView.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
+				// 弹出菜单
 				toogleDrawer();
 			}
 		});
@@ -215,7 +231,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				mViewPager.setCurrentItem(0, true);
 			}
 		});
-
+		// 右侧三个导航图标
 		mNaViews = new ArrayList<ImageView>();
 		mNaViews.add(mLocalImageView);
 		mNaViews.add(mFavouriteImageView);
@@ -224,12 +240,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	private void updateNaviItem(int position) {
 
+		// 设置没有被选中的图标背景
 		for (int i = 0; i < mNaViews.size(); i++) {
-
 			if (position != i)
 				mNaViews.get(i).setBackground(getResources().getDrawable(R.drawable.pressed_to));
 		}
-
+		// 设置选中的图标背景
 		mNaViews.get(position).setBackground(getResources().getDrawable(R.drawable.seleted));
 
 	}
@@ -249,10 +265,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mPlayButton.setOnClickListener(this);
 		mPreviousButton.setOnClickListener(this);
 		mNextButton.setOnClickListener(this);
-		// image
+		// 底部控制栏歌曲封面
 		mArtImageView = (ImageView) findViewById(R.id.iv_art_bottom);
+		// 歌曲名
 		titleTextView = (TextView) findViewById(R.id.title);
-
+		// 收藏按钮
 		mPraiseButton.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -264,7 +281,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 						mPraiseButton.setImageResource(R.drawable.desk2_btn_love_prs);
 					}
 				}
-				// hard code here...
+				// 更新收藏页面的收藏按钮
 				mFragments.get(1).onPraisedPressed();
 			}
 		});
@@ -292,7 +309,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	}
 
 	void bindToService() {
-
+		/**
+		 * 应用组件(客户端)可以调用bindService()绑定到一个service．Android系统之后调用service的onBind()
+		 * 方法，它返回一个用来与service交互的IBinder．
+		 */
 		mServiceConnection = new ServiceConnection() {
 
 			@Override
@@ -300,14 +320,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			}
 
+			// 系统调用这个来传送在service的onBind()中返回的IBinder．
 			@Override
 			public void onServiceConnected(ComponentName arg0, IBinder iBinder) {
+				// MyBinder在服务中定义
 				MyBinder myBinder = (MyBinder) iBinder;
 				mCoreService = myBinder.getService();
-				Log.i("nick_music", mCoreService.toString());
+				Log.i("music", mCoreService.toString());
+				// 告诉服务监听MainActivity
 				mCoreService.setActivityCallback(MainActivity.this);
 
-				// update
+				// 服务连接后更新页面更新页面
 				initPager();
 				onPlayStateChanged();
 			}
@@ -352,7 +375,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			return "NICK";
+			return "MUSIC";
 		}
 	}
 
@@ -374,7 +397,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	public void updateArtImage(ImageView imageView) {
 
 		if (mCoreService.getPlayList() != null) {
-
 			ImageLoader.getInstance().displayImage(mCoreService.getCurrentAlbumUri().toString(), imageView);
 		}
 	}
@@ -418,6 +440,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		}
 	}
 
+	/**
+	 * service中的监听
+	 */
 	@Override
 	public void onPlayStateChanged() {
 		updateControlButtonBackground();

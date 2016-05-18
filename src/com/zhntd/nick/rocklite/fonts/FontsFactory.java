@@ -3,12 +3,9 @@ package com.zhntd.nick.rocklite.fonts;
 import android.content.Context;
 import android.graphics.Typeface;
 
-/**
- * @author Nick
- * 
- */
 public class FontsFactory {
 
+	//Á½ÖÖ×ÖÌå
 	private static Typeface mTypefaceRoboto;
 	private static Typeface mTypefaceHero;
 
