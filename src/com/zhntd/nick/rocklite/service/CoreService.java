@@ -552,10 +552,17 @@ public class CoreService extends Service {
 
 	/**
 	 * 获取正在播放的位置
+	 * 
 	 * @return
 	 */
 	public int getPlayingPosition() {
 		return mCursor;
 	}
-	
+
+	// 进度条滑动到指定位置，只有在播放时才有效
+	public void seek(int msec) {
+		if (!(mediaPlayer != null && mediaPlayer.isPlaying()))
+			return;
+		mediaPlayer.seekTo(msec);
+	}
 }

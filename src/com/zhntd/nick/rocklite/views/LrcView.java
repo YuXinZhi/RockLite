@@ -29,32 +29,33 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
 /**
+ * liteplayer by loader
  * 显示lrc歌词控件
  */
 @SuppressLint("DrawAllocation")
 public class LrcView extends View {
 	private static final int SCROLL_TIME = 500;
-	private static final String DEFAULT_TEXT = "鏆傛棤姝岃瘝";
+	private static final String DEFAULT_TEXT = "暂无歌词";
 	
-	private List<String> mLrcs = new ArrayList<String>(); // 瀛樻斁姝岃瘝
-	private List<Long> mTimes = new ArrayList<Long>(); // 瀛樻斁鏃堕棿
+	private List<String> mLrcs = new ArrayList<String>(); // 存放歌词
+	private List<Long> mTimes = new ArrayList<Long>(); // 存放时间
 
-	private long mNextTime = 0l; // 淇濆瓨涓嬩竴鍙ュ紑濮嬬殑鏃堕棿
+	private long mNextTime = 0l; // 保存下一句开始的时间
 
-	private int mViewWidth; // view鐨勫搴?
-	private int mLrcHeight; // lrc鐣岄潰鐨勯珮搴?
-	private int mRows;      // 澶氬皯琛?
-	private int mCurrentLine = 0; // 褰撳墠琛?
-	private int mOffsetY;   // y涓婄殑鍋忕Щ
-	private int mMaxScroll; // 鏈?澶ф粦鍔ㄨ窛绂?=涓?琛屾瓕璇嶉珮搴?+姝岃瘝闂磋窛
+	private int mViewWidth; // view的宽度
+	private int mLrcHeight; // lrc界面的高度
+	private int mRows;      // 多少行
+	private int mCurrentLine = 0; // 当前行
+	private int mOffsetY;   // y上的偏移
+	private int mMaxScroll; // 最大滑动距离=一行歌词高度+歌词间距
 
-	private float mTextSize; // 瀛椾綋
-	private float mDividerHeight; // 琛岄棿璺?
+	private float mTextSize; // 字体
+	private float mDividerHeight; // 行间距
 	
 	private Rect mTextBounds;
 
-	private Paint mNormalPaint; // 甯歌鐨勫瓧浣?
-	private Paint mCurrentPaint; // 褰撳墠姝岃瘝鐨勫ぇ灏?
+	private Paint mNormalPaint; // 常规的字体
+	private Paint mCurrentPaint; // 当前歌词的大小
 
 	private Bitmap mBackground;
 	
@@ -70,10 +71,10 @@ public class LrcView extends View {
 		inflateAttributes(attrs);
 	}
 
-	// 鍒濆鍖栨搷浣?
+	// 初始化操作
 	private void inflateAttributes(AttributeSet attrs) {
 		// <begin>
-		// 瑙ｆ瀽鑷畾涔夊睘鎬?
+		// 解析自定义属性
 		TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.Lrc);
 		mTextSize = ta.getDimension(R.styleable.Lrc_textSize, 50.0f);
 		mRows = ta.getInteger(R.styleable.Lrc_rows, 5);
@@ -84,13 +85,13 @@ public class LrcView extends View {
 		ta.recycle();
 		// </end>
 
-		// 璁＄畻lrc闈㈡澘鐨勯珮搴?
+		// 计算lrc面板的高度
 		mLrcHeight = (int) (mTextSize + mDividerHeight) * mRows + 5;
 
 		mNormalPaint = new Paint();
 		mCurrentPaint = new Paint();
 		
-		// 鍒濆鍖杙aint
+		// 初始化paint
 		mNormalPaint.setTextSize(mTextSize);
 		mNormalPaint.setColor(normalTextColor);
 		mNormalPaint.setAntiAlias(true);
@@ -106,7 +107,7 @@ public class LrcView extends View {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		// 閲嶆柊璁剧疆view鐨勯珮搴?
+		// 重新设置view的高度
 		int measuredHeightSpec = MeasureSpec.makeMeasureSpec(mLrcHeight, MeasureSpec.AT_MOST);
 		super.onMeasure(widthMeasureSpec, measuredHeightSpec);
 	}
@@ -114,7 +115,7 @@ public class LrcView extends View {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-		// 鑾峰彇view瀹藉害
+		// 获取view宽度
 		mViewWidth = getMeasuredWidth();
 	}
 
@@ -137,7 +138,7 @@ public class LrcView extends View {
 		float offsetY = mTextBounds.height() + mDividerHeight;
 		String currentLrc = mLrcs.get(mCurrentLine);
 		float currentX = (mViewWidth - mCurrentPaint.measureText(currentLrc)) / 2;
-		// 鐢诲綋鍓嶈
+		// 画当前行
 		canvas.drawText(currentLrc, currentX, centerY - mOffsetY, mCurrentPaint);
 		
 		int firstLine = mCurrentLine - mRows / 2;
@@ -145,14 +146,14 @@ public class LrcView extends View {
 		int lastLine = mCurrentLine + mRows / 2 + 2;
 		lastLine = lastLine >= mLrcs.size() - 1 ? mLrcs.size() - 1 : lastLine;
 		
-		// 鐢诲綋鍓嶈涓婇潰鐨?
+		// 画当前行上面的
 		for (int i = mCurrentLine - 1,j=1; i >= firstLine; i--,j++) {
 			String lrc = mLrcs.get(i);
 			float x = (mViewWidth - mNormalPaint.measureText(lrc)) / 2;
 			canvas.drawText(lrc, x, centerY - j * offsetY - mOffsetY, mNormalPaint);
 		}
 
-		// 鐢诲綋鍓嶈涓嬮潰鐨?
+		// 画当前行下面的
 		for (int i = mCurrentLine + 1,j=1; i <= lastLine; i++,j++) {
 			String lrc = mLrcs.get(i);
 			float x = (mViewWidth - mNormalPaint.measureText(lrc)) / 2;
@@ -174,7 +175,7 @@ public class LrcView extends View {
 		}
 	}
 
-	// 瑙ｆ瀽鏃堕棿
+	// 解析时间
 	private Long parseTime(String time) {
 		// 03:02.12
 		String[] min = time.split(":");
@@ -190,10 +191,10 @@ public class LrcView extends View {
 		return minInt * 60 * 1000 + secInt * 1000 + milInt * 10;
 	}
 
-	// 瑙ｆ瀽姣忚
+	// 解析每行
     private List<LrcLine> parseLine(String line) {
         Matcher matcher = Pattern.compile("\\[\\d.+\\].+").matcher(line);
-        // 濡傛灉褰㈠锛歔xxx]鍚庨潰鍟ヤ篃娌℃湁鐨勶紝鍒檙eturn绌?
+        // 如果形如：[xxx]后面啥也没有的，则return空
         if (!matcher.matches()) {
             return null;
         }
@@ -225,20 +226,20 @@ public class LrcView extends View {
         return ret;
     }
 
-	// 澶栭儴鎻愪緵鏂规硶
-	// 浼犲叆褰撳墠鎾斁鏃堕棿
+	// 外部提供方法
+	// 传入当前播放时间
 	public synchronized void changeCurrent(long time) {
-		// 濡傛灉褰撳墠鏃堕棿灏忎簬涓嬩竴鍙ュ紑濮嬬殑鏃堕棿
-		// 鐩存帴return
+		// 如果当前时间小于下一句开始的时间
+		// 直接return
 		if (mNextTime > time) {
 			return;
 		}
 		
-		// 姣忔杩涙潵閮介亶鍘嗗瓨鏀剧殑鏃堕棿
+		// 每次进来都遍历存放的时间
 		int timeSize = mTimes.size();
 		for (int i = 0; i < timeSize; i++) {
 			
-			// 瑙ｅ喅鏈?鍚庝竴琛屾瓕璇嶄笉鑳介珮浜殑闂
+			// 解决最后一行歌词不能高亮的问题
 			if(mNextTime == mTimes.get(timeSize - 1)) {
 				mNextTime += 60 * 1000;
 				mScroller.abortAnimation();
@@ -249,9 +250,9 @@ public class LrcView extends View {
 				return;
 			}
 			
-			// 鍙戠幇杩欎釜鏃堕棿澶т簬浼犺繘鏉ョ殑鏃堕棿
-			// 閭ｄ箞鐜板湪灏卞簲璇ユ樉绀鸿繖涓椂闂村墠闈㈢殑瀵瑰簲鐨勯偅涓?琛?
-			// 姣忔閮介噸鏂版樉绀猴紝鏄笉鏄鍒ゆ柇锛氱幇鍦ㄦ鍦ㄦ樉绀哄氨涓嶅埛鏂颁簡
+			// 发现这个时间大于传进来的时间
+			// 那么现在就应该显示这个时间前面的对应的那一行
+			// 每次都重新显示，是不是要判断：现在正在显示就不刷新了
 			if (mTimes.get(i) > time) {
 				mNextTime = mTimes.get(i);
 				mScroller.abortAnimation();
@@ -264,8 +265,8 @@ public class LrcView extends View {
 		}
 	}
 	
-	// 澶栭儴鎻愪緵鏂规硶
-	// 鎷栧姩杩涘害鏉℃椂
+	// 外部提供方法
+	// 拖动进度条时
 	public void onDrag(int progress) {
 		for(int i=0;i<mTimes.size();i++) {
 			if(Integer.parseInt(mTimes.get(i).toString()) > progress) {
@@ -275,8 +276,8 @@ public class LrcView extends View {
 		}
 	}
 
-	// 澶栭儴鎻愪緵鏂规硶
-	// 璁剧疆lrc鐨勮矾寰?
+	// 外部提供方法
+	// 设置lrc的路径
     public void setLrcPath(String path) {
         reset();
         File file = new File(path);
@@ -336,13 +337,13 @@ public class LrcView extends View {
 		mNextTime = 0l;
 	}
 	
-	// 鏄惁璁剧疆姝岃瘝
+	// 是否设置歌词
 	public boolean hasLrc() {
 		return mLrcs != null && !mLrcs.isEmpty();
 	}
 
-	// 澶栭儴鎻愪緵鏂规硶
-	// 璁剧疆鑳屾櫙鍥剧墖
+	// 外部提供方法
+	// 设置背景图片
 	public void setBackground(Bitmap bmp) {
 		mBackground = bmp;
 	}
