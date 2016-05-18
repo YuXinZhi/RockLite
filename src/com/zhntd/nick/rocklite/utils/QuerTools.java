@@ -58,7 +58,7 @@ public class QuerTools {
 				track.setUrl(cursor.getString(3));
 				track.setId(cursor.getLong(4));
 				track.setAlbumId(cursor.getLong(5));
-
+				track.setDuration(cursor.getLong(6));
 				resultList.add(track);
 
 				if (limitCount) {

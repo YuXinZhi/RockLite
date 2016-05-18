@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.zhntd.nick.rocklite.MainActivity;
+import com.zhntd.nick.rocklite.OnlineMusicSite;
 import com.zhntd.nick.rocklite.R;
 import com.zhntd.nick.rocklite.modle.Site;
+import com.zhntd.nick.rocklite.service.CoreService;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,11 +26,11 @@ public class Online extends Base {
 	private ListView mListView;
 	private List<Site> mSiteList;
 	private MainActivity mActivity;
+	private CoreService mCoreService;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mListView = (ListView) inflater.inflate(R.layout.fragment_online, null);
-
 		initSites();
 		initListView();
 		return mListView;

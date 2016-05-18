@@ -12,31 +12,55 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:paddingLeft="10dp" >
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" >
 
         <ImageView
-            android:id="@+id/iv_play_back"
+            android:id="@+id/art"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/stat_notify" />
+
+        <com.zhntd.nick.rocklite.views.RobotoLightTextView
+            android:id="@+id/line_two"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/arrow_right_normal" />
+            android:layout_alignBottom="@+id/art"
+            android:layout_alignLeft="@+id/line_one"
+            android:layout_marginBottom="5dp"
+            android:text="Small Text"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/gray_light"
+            android:textSize="11sp" />
+
+        <com.zhntd.nick.rocklite.views.RobotoLightTextView
+            android:id="@+id/line_one"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/art"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/art"
+            android:singleLine="true"
+            android:text="TextView"
+            android:textColor="@color/gray_light"
+            android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/tv_music_title"
+            android:id="@+id/tv_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@android:color/transparent"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/line_one"
+            android:layout_marginRight="5dp"
+            android:text="00:00" />
     </RelativeLayout>
 
-    <android.support.v4.view.ViewPager
+    <ImageView
         android:id="@+id/vp_play_container"
         android:layout_width="match_parent"
         android:layout_height="0dip"
@@ -50,12 +74,6 @@
         android:layout_marginBottom="20dp"
         android:background="@android:color/transparent"
         android:orientation="vertical" >
-
-        <org.loader.liteplayer.ui.PagerIndicator
-            android:id="@+id/pi_play_indicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp" />
 
         <SeekBar
             android:id="@+id/sb_play_progress"

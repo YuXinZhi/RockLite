@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
-
+	// TB_PRAISED_NAME = "TABLE_PRAISED";
 	private String TABLE_NAME = Project.TB_PRAISED_NAME;
 	private String CREATE_TABLE;
 
@@ -19,8 +19,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	 * @param factory
 	 * @param version
 	 */
-	public DataBaseHelper(Context context, String name, CursorFactory factory,
-			int version) {
+	public DataBaseHelper(Context context, String name, CursorFactory factory, int version) {
 		super(context, name, factory, version);
 	}
 
@@ -31,8 +30,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	 * @param version
 	 * @param errorHandler
 	 */
-	public DataBaseHelper(Context context, String name, CursorFactory factory,
-			int version, DatabaseErrorHandler errorHandler) {
+	public DataBaseHelper(Context context, String name, CursorFactory factory, int version,
+			DatabaseErrorHandler errorHandler) {
 		super(context, name, factory, version, errorHandler);
 	}
 
@@ -52,10 +51,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 	private void init() {
 		// remember the white space
-		CREATE_TABLE = "CREATE TABLE"
-				+ " "
-				+ TABLE_NAME
-				+ "(_id INTEGER PRIMARY KEY AUTOINCREMENT ,"
+		CREATE_TABLE = "CREATE TABLE" + " " + TABLE_NAME + "(_id INTEGER PRIMARY KEY AUTOINCREMENT ,"
 				+ "TITLE TEXT,ARTIST TEXT,PATH TEXT,SONG_ID LONG,ALBUM_ID LONG,DURATION LONG)";
 	}
 

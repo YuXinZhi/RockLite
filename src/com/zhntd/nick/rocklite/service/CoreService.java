@@ -4,6 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.zhntd.nick.rocklite.MainActivity;
+import com.zhntd.nick.rocklite.Project;
+import com.zhntd.nick.rocklite.R;
+import com.zhntd.nick.rocklite.modle.Track;
+import com.zhntd.nick.rocklite.receiver.TrackNextReceiver;
+import com.zhntd.nick.rocklite.receiver.TrackPlayReceiver;
+import com.zhntd.nick.rocklite.utils.QuerTools;
+import com.zhntd.nick.rocklite.views.BitmapToBlur;
+
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,19 +33,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.zhntd.nick.rocklite.Project;
-import com.zhntd.nick.rocklite.R;
-import com.zhntd.nick.rocklite.MainActivity;
-import com.zhntd.nick.rocklite.modle.Track;
-import com.zhntd.nick.rocklite.receiver.TrackNextReceiver;
-import com.zhntd.nick.rocklite.receiver.TrackPlayReceiver;
-import com.zhntd.nick.rocklite.utils.QuerTools;
-import com.zhntd.nick.rocklite.views.BitmapToBlur;
 
 /**
  * 主要服务
@@ -66,7 +68,7 @@ public class CoreService extends Service {
 	private Notification mNotification;
 	private int NOTI_ID = 1;
 
-	private MainActivity mActivityCallback;
+	private Activity mActivityCallback;
 
 	private QuerTools mQuerTools;
 
@@ -109,6 +111,13 @@ public class CoreService extends Service {
 		return -1;
 	}
 
+	public long getCurrentDuration() {
+		if (mPlayList != null) {
+			return mPlayList.get(mCursor).getDuration();
+		}
+		return -1;
+	}
+
 	/**
 	 * @return
 	 */
@@ -143,7 +152,9 @@ public class CoreService extends Service {
 	 * @param playList
 	 */
 	public void setupPLayList(List<Track> playList) {
-		this.mPlayList = playList;
+		if (playList != null && playList.size() > 0) {
+			this.mPlayList = playList;
+		}
 	}
 
 	/**
@@ -286,7 +297,7 @@ public class CoreService extends Service {
 		values.put("PATH", getCurrentFilePath());
 		values.put("SONG_ID", getCurrentSongId());
 		values.put("ALBUM_ID", getCurrentAlbumId());
-
+		values.put("DURATION", getCurrentDuration());
 		mQuerTools.addToDb(values, Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME, 1);
 	}
 
@@ -502,12 +513,49 @@ public class CoreService extends Service {
 		// mFragments.get(i).onBlurReady(drawable);
 		// }
 
-		mActivityCallback.onBlurReady(drawable);
+		((MainActivity) mActivityCallback).onBlurReady(drawable);
 	}
 
-	// public void seek(int msec) {
-	// if(!isPlaying()) return;
-	// mPlayer.seekTo(msec);
-	// }
+	/************************** PlayActivity **************************/
+	/**
+	 * 音乐播放回调接口
+	 * 
+	 */
+	public interface OnMusicEventListener {
+		public void onPublish(int percent);
 
+		public void onChange(int position);
+	}
+
+	private OnMusicEventListener mListener;
+	/**
+	 * 更新进度的线程
+	 */
+	private Runnable mPublishProgressRunnable = new Runnable() {
+		@Override
+		public void run() {
+			for (;;) {
+				if (mediaPlayer != null && mediaPlayer.isPlaying() && mListener != null) {
+					mListener.onPublish(mediaPlayer.getCurrentPosition());
+				}
+				SystemClock.sleep(200);
+			}
+		}
+	};
+
+	/**
+	 * 设置回调
+	 */
+	public void setOnMusicEventListener(OnMusicEventListener l) {
+		mListener = l;
+	}
+
+	/**
+	 * 获取正在播放的位置
+	 * @return
+	 */
+	public int getPlayingPosition() {
+		return mCursor;
+	}
+	
 }

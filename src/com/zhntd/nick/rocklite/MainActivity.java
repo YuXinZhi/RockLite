@@ -102,7 +102,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 绑定服务
 		bindToService();
 		// 启动服务
-		startService();
+		// startService();
 
 		new SwitchAnimationUtil().startAnimation(getWindow().getDecorView(), AnimationType.SCALE);
 

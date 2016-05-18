@@ -32,8 +32,7 @@ public class Praised extends Base {
 	private CoreService mServiceCallback;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mListView = (ListView) inflater.inflate(R.layout.fragment_all, null);
 		display();
 		return mListView;
@@ -43,7 +42,7 @@ public class Praised extends Base {
 	public void onAttach(Activity activity) {
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
-		Log.i("nick", mServiceCallback.toString());
+		Log.i("music", mServiceCallback.toString());
 		super.onAttach(activity);
 	}
 
@@ -60,8 +59,7 @@ public class Praised extends Base {
 	 * @return
 	 */
 	List<Track> getTracks() {
-		return new QuerTools(getActivity()).getListFrmDataBase(
-				Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME, 1,
+		return new QuerTools(getActivity()).getListFrmDataBase(Project.DB_PRAISED_NAME, Project.TB_PRAISED_NAME, 1,
 				"TITLE DESC", false);
 	}
 
@@ -71,15 +69,13 @@ public class Praised extends Base {
 	void inflateListView(final List<Track> tracks) {
 
 		if (mAdapter == null) {
-			mAdapter = new TrackListAdapter(tracks, getActivity(),
-					ImageLoader.getInstance());
+			mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
 			mListView.setAdapter(mAdapter);
-
+			mServiceCallback.setupPLayList(tracks);
 			mListView.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 					mServiceCallback.setupPLayList(tracks);
 					mServiceCallback.setCurrentCursor(position);
@@ -92,8 +88,7 @@ public class Praised extends Base {
 			mListView.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 					mServiceCallback.setupPLayList(tracks);
 					mServiceCallback.setCurrentCursor(position);
@@ -105,6 +100,7 @@ public class Praised extends Base {
 
 	}
 
+	// “Ï≤Ωº”‘ÿ
 	final class TrackLoaderTask extends AsyncTask<Void, Void, List<Track>> {
 
 		@Override
