@@ -29,6 +29,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.audiofx.Visualizer.MeasurementPeakRms;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
@@ -561,8 +562,13 @@ public class CoreService extends Service {
 
 	// 进度条滑动到指定位置，只有在播放时才有效
 	public void seek(int msec) {
-		if (!(mediaPlayer != null && mediaPlayer.isPlaying()))
+		if (!isPlaying())
 			return;
 		mediaPlayer.seekTo(msec);
 	}
+
+	public boolean isPlaying() {
+		return mediaPlayer != null && mediaPlayer.isPlaying();
+	}
+
 }

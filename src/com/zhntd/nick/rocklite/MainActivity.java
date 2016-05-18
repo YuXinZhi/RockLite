@@ -255,7 +255,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 	}
-
+	// µ×²¿¿ØÖÆÀ¸
 	private void findControlButtons() {
 		mPlayButton = (ImageButton) findViewById(R.id.btn_play_local);
 		mNextButton = (ImageButton) findViewById(R.id.btn_next_local);

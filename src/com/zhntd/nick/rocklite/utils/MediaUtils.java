@@ -1,10 +1,12 @@
 package com.zhntd.nick.rocklite.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
+import com.zhntd.nick.rocklite.App;
 import com.zhntd.nick.rocklite.R;
 import com.zhntd.nick.rocklite.modle.Track;
 
@@ -12,12 +14,13 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
+import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
-import android.provider.MediaStore.MediaColumns;
 
 @SuppressLint("DefaultLocale")
 public class MediaUtils {
@@ -108,6 +111,66 @@ public class MediaUtils {
 		return sFormatter.format(durationformat, timeArgs).toString();
 	}
 
+	/**
+	 * 测量屏幕
+	 */
 
+	public static int getScreenWidth(Context context) {
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		DisplayMetrics dm = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(dm);
+		return dm.widthPixels;
+	}
 
+	public static int getScreenHeight(Context context) {
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		DisplayMetrics dm = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(dm);
+		return dm.heightPixels;
+	}
+
+	/**
+	 * 获取应用程序使用的本地目录
+	 * @return
+	 */
+	public static String getAppLocalDir() {
+		String dir = null;
+
+		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTED)) {
+			dir = Environment.getExternalStorageDirectory() + File.separator
+					+ "liteplayer" + File.separator;
+		} else {
+			dir = App.sContext.getFilesDir() + File.separator + "liteplayer" + File.separator;
+		}
+
+		return mkdir(dir);
+	}
+	
+	/**
+	 * 获取歌词存放目录
+	 * 
+	 * @return
+	 */
+	public static String getLrcDir() {
+		String lrcDir = getAppLocalDir() + "lrc" + File.separator;
+		return mkdir(lrcDir);
+	}
+
+	/**
+	 * 创建文件夹
+	 * @param dir
+	 * @return
+	 */
+	public static String mkdir(String dir) {
+		File f = new File(dir);
+		if (!f.exists()) {
+			for (int i = 0; i < 5; i++) {
+				if(f.mkdirs()) return dir;
+			}
+			return null;
+		}
+		
+		return dir;
+	}
+	
 }
