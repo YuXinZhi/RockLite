@@ -255,6 +255,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 	}
+
 	// 底部控制栏
 	private void findControlButtons() {
 		mPlayButton = (ImageButton) findViewById(R.id.btn_play_local);
@@ -269,6 +270,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mArtImageView = (ImageView) findViewById(R.id.iv_art_bottom);
 		// 歌曲名
 		titleTextView = (TextView) findViewById(R.id.title);
+		titleTextView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MainActivity.this, PlayActivity.class);
+				startActivity(intent);
+			}
+		});
 		// 收藏按钮
 		mPraiseButton.setOnClickListener(new OnClickListener() {
 
