@@ -2,6 +2,7 @@ package com.zhntd.nick.rocklite;
 
 import java.util.ArrayList;
 
+import com.zhntd.nick.rocklite.modle.Track;
 import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
 import com.zhntd.nick.rocklite.utils.ImageTools;
 import com.zhntd.nick.rocklite.utils.MediaUtils;
@@ -29,21 +30,25 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class PlayActivity extends BaseActivity implements OnClickListener,StateChangedListener {
-
+/**
+ * liteplayer by loader
+ * 
+ * @author qibin
+ */
+public class PlayActivity2 extends BaseActivity implements OnClickListener,StateChangedListener {
 	private LinearLayout mPlayContainer;
-	private ImageView mPlayBackImageView; // 后退按钮
-	private TextView mMusicTitle;
-	private ViewPager mViewPager; // 歌曲封面或歌词
+	private ImageView mPlayBackImageView; // back button
+	private TextView mMusicTitle; // music title
+	private ViewPager mViewPager; // cd or lrc
 	private CDView mCdView; // cd
 	private SeekBar mPlaySeekBar; // seekbar
 	private ImageButton mStartPlayButton; // start or pause
 	private TextView mSingerTextView; // singer
-	private LrcView mLrcViewOnFirstPage; // 第一页的一行歌词
-	private LrcView mLrcViewOnSecondPage; // 第二页歌词
-	private PagerIndicator mPagerIndicator; // 翻页的指示器
+	private LrcView mLrcViewOnFirstPage; // single line lrc
+	private LrcView mLrcViewOnSecondPage; // 7 lines lrc
+	private PagerIndicator mPagerIndicator; // indicator
 
-	// PagerView的两个页面
+	// cd view and lrc view
 	private ArrayList<View> mViewPagerContent = new ArrayList<View>(2);
 
 	@Override
@@ -52,9 +57,12 @@ public class PlayActivity extends BaseActivity implements OnClickListener,StateC
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.play_activity_layout);
 		setupViews();
+		// allowBindService();
 	}
-	
-	//设置UI
+
+	/**
+	 * 初始化view
+	 */
 	private void setupViews() {
 		mPlayContainer = (LinearLayout) findViewById(R.id.ll_play_container);
 		mPlayBackImageView = (ImageView) findViewById(R.id.iv_play_back);
@@ -65,24 +73,20 @@ public class PlayActivity extends BaseActivity implements OnClickListener,StateC
 		mPagerIndicator = (PagerIndicator) findViewById(R.id.pi_play_indicator);
 
 		// 动态设置seekbar的margin
-
 		MarginLayoutParams p = (MarginLayoutParams) mPlaySeekBar.getLayoutParams();
 		p.leftMargin = (int) (App.sScreenWidth * 0.1);
 		p.rightMargin = (int) (App.sScreenWidth * 0.1);
 
-		// 设置进度条监听
 		mPlaySeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
 
 		initViewPagerContent();
 		mViewPager.setPageTransformer(true, new PlayPageTransformer());
-		// 设置原点指示器的数量
 		mPagerIndicator.create(mViewPagerContent.size());
 		mViewPager.setOnPageChangeListener(mPageChangeListener);
 		mViewPager.setAdapter(mPagerAdapter);
 
 		mPlayBackImageView.setOnClickListener(this);
 	}
-
 
 	@Override
 	protected void onResume() {
@@ -96,109 +100,10 @@ public class PlayActivity extends BaseActivity implements OnClickListener,StateC
 		super.onPause();
 	}
 
-
-	// 初始化PagerView
-	private void initViewPagerContent() {
-		// 圆形封面
-		View cd = View.inflate(this, R.layout.play_pager_item_1, null);
-		mCdView = (CDView) cd.findViewById(R.id.play_cdview);
-		mSingerTextView = (TextView) cd.findViewById(R.id.play_singer);
-		mLrcViewOnFirstPage = (LrcView) cd.findViewById(R.id.play_first_lrc);
-
-		View lrcView = View.inflate(this, R.layout.play_pager_item_2, null);
-		mLrcViewOnSecondPage = (LrcView) lrcView.findViewById(R.id.play_first_lrc_2);
-
-		mViewPagerContent.add(cd);
-		mViewPagerContent.add(lrcView);
-	}
-
-	@Override
-	public void onPublish(int progress) {
-
-	}
-
-	@Override
-	public void onChange(int position) {
-		setBackground(position);
-		onPlay();
-		setLrc(position);
-	}
-
-	private void setLrc(int position) {
-		// Track track = M;
-		String lrcPath = MediaUtils.getLrcDir() + mPlayService.getCurrentTitle() + ".lrc";
-		mLrcViewOnFirstPage.setLrcPath(lrcPath);
-		mLrcViewOnSecondPage.setLrcPath(lrcPath);
-	}
-
-	/**
-	 * 播放时调用 主要设置显示当前播放音乐的信息
-	 * 
-	 * @param position
-	 */
-	private void onPlay() {
-		// Music music = MusicUtils.sMusicList.get(position);
-
-		mMusicTitle.setText(mPlayService.getCurrentTitle());
-		mSingerTextView.setText(mPlayService.getCurrentArtist());
-		mPlaySeekBar.setMax((int) mPlayService.getCurrentDuration());
-		Bitmap bmp = mPlayService.getCurrentTrackArt();
-		if (bmp == null)
-			bmp = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-		mCdView.setImage(ImageTools.scaleBitmap(bmp, (int) (App.sScreenWidth * 0.7)));
-
-		if (mPlayService.isPlaying()) {
-			mCdView.start();
-			mStartPlayButton.setImageResource(R.drawable.player_btn_pause_normal);
-		} else {
-			mCdView.pause();
-			mStartPlayButton.setImageResource(R.drawable.player_btn_play_normal);
-		}
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-
-		case R.id.iv_play_back:
-			// 左上角返回按钮
-			finish();
-			break;
-		default:
-			break;
-		}
-	}
-
-	/**
-	 * 拖动进度条
-	 */
-	private SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-		@Override
-		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-		}
-
-		@Override
-		public void onStartTrackingTouch(SeekBar seekBar) {
-
-		}
-
-		@Override
-		public void onStopTrackingTouch(SeekBar seekBar) {
-			// 当进度条停止拖动时更新歌曲信息
-			int progress = seekBar.getProgress();
-			mPlayService.seek(progress);
-			mLrcViewOnFirstPage.onDrag(progress);
-			mLrcViewOnSecondPage.onDrag(progress);
-		}
-	};
-
-	// PageView监听器
 	private OnPageChangeListener mPageChangeListener = new OnPageChangeListener() {
 		@Override
 		public void onPageSelected(int position) {
 			if (position == 0) {
-				// 当歌曲正在播放时圆形封面旋转
 				if (mPlayService.isPlaying())
 					mCdView.start();
 			} else {
@@ -219,7 +124,29 @@ public class PlayActivity extends BaseActivity implements OnClickListener,StateC
 		}
 	};
 
-	// PageView适配器
+	/**
+	 * 拖动进度条
+	 */
+	private SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+
+		}
+
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			int progress = seekBar.getProgress();
+			mPlayService.seek(progress);
+			mLrcViewOnFirstPage.onDrag(progress);
+			mLrcViewOnSecondPage.onDrag(progress);
+		}
+	};
+
 	private PagerAdapter mPagerAdapter = new PagerAdapter() {
 		@Override
 		public int getCount() {
@@ -243,39 +170,151 @@ public class PlayActivity extends BaseActivity implements OnClickListener,StateC
 		}
 	};
 
-	@SuppressWarnings("deprecation")
+	/**
+	 * 初始化viewpager的内容
+	 */
+	private void initViewPagerContent() {
+		View cd = View.inflate(this, R.layout.play_pager_item_1, null);
+		mCdView = (CDView) cd.findViewById(R.id.play_cdview);
+		mSingerTextView = (TextView) cd.findViewById(R.id.play_singer);
+		mLrcViewOnFirstPage = (LrcView) cd.findViewById(R.id.play_first_lrc);
+
+		View lrcView = View.inflate(this, R.layout.play_pager_item_2, null);
+		mLrcViewOnSecondPage = (LrcView) lrcView.findViewById(R.id.play_first_lrc_2);
+
+		mViewPagerContent.add(cd);
+		mViewPagerContent.add(lrcView);
+	}
+
 	private void setBackground(int position) {
 		Bitmap bgBitmap = mPlayService.getCurrentTrackArt();
 		if (bgBitmap == null) {
 			bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 		}
+
 		mPlayContainer.setBackgroundDrawable(new ShapeDrawable(new PlayBgShape(bgBitmap)));
 	}
 
-	// 上一曲
+	/**
+	 * 上一曲
+	 * 
+	 * @param view
+	 */
 	public void pre(View view) {
+		// mPlayService.pre(); // 上一曲
 		mPlayService.playPreviousTrack();
+		updateTrackInfo();
 	}
 
-	// 下一曲
-	public void next(View view) {
-		mPlayService.playNextTrack();
-	}
-
-	// 播放/暂停
+	/**
+	 * 播放 or 暂停
+	 * 
+	 * @param view
+	 */
 	public void play(View view) {
 		if (mPlayService.isPlaying()) {
-			mPlayService.pausePlayer(); // 暂停
+			// mPlayService.pause(); // 暂停
+			mPlayService.pausePlayer();
 			mCdView.pause();
 			mStartPlayButton.setImageResource(R.drawable.player_btn_play_normal);
 		} else {
-			onPlay(); // 播放
+			onPlay(mPlayService.resume()); // 播放
 		}
+	}
+
+	/**
+	 * 下一曲
+	 * 
+	 * @param view
+	 */
+	public void next(View view) {
+		mPlayService.playNextTrack(); // 下一曲
+		updateTrackInfo();
+	}
+
+	/**
+	 * 播放时调用 主要设置显示当前播放音乐的信息
+	 * 
+	 * @param position
+	 */
+	private void onPlay(int position) {
+		// Music music = MusicUtils.sMusicList.get(position);
+		mMusicTitle.setText(mPlayService.getCurrentTitle());
+		mSingerTextView.setText(mPlayService.getCurrentArtist());
+		mPlaySeekBar.setMax((int) mPlayService.getCurrentDuration());
+		// Bitmap bmp = mPlayService.getCurrentTrackArt();
+		// if (bmp == null)
+		// bmp = BitmapFactory.decodeResource(getResources(),
+		// R.drawable.ic_launcher);
+		// mCdView.setImage(ImageTools.scaleBitmap(bmp, (int) (App.sScreenWidth
+		// * 0.7)));
+
+		if (mPlayService.isPlaying()) {
+			mCdView.start();
+			mStartPlayButton.setImageResource(R.drawable.player_btn_pause_normal);
+		} else {
+			mCdView.pause();
+			mStartPlayButton.setImageResource(R.drawable.player_btn_play_normal);
+		}
+	}
+
+	private void setLrc(int position) {
+		String lrcPath = MediaUtils.getLrcDir() + mPlayService.getCurrentTitle() + ".lrc";
+		mLrcViewOnFirstPage.setLrcPath(lrcPath);
+		mLrcViewOnSecondPage.setLrcPath(lrcPath);
+	}
+
+	@Override
+	public void onPublish(int progress) {
+		mPlaySeekBar.setProgress(progress);
+		if (mLrcViewOnFirstPage.hasLrc())
+			mLrcViewOnFirstPage.changeCurrent(progress);
+		if (mLrcViewOnSecondPage.hasLrc())
+			mLrcViewOnSecondPage.changeCurrent(progress);
+	}
+
+	@Override
+	public void onChange(int position) {
+		// setBackground(position);
+		updateTrackInfo();
+		onPlay(position);
+		setLrc(position);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.iv_play_back:
+			finish();
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+	}
+
+	private void updateTrackInfo() {
+		// 设置背景
+		Bitmap bgBitmap = mPlayService.getCurrentTrackArt();
+		if (bgBitmap == null) {
+			bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		}
+
+		mPlayContainer.setBackgroundDrawable(new ShapeDrawable(new PlayBgShape(bgBitmap)));
+
+		// 设置圆形专辑封面
+		Bitmap bmp = mPlayService.getCurrentTrackArt();
+		if (bmp == null)
+			bmp = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		mCdView.setImage(ImageTools.scaleBitmap(bmp, (int) (App.sScreenWidth * 0.7)));
 	}
 
 	@Override
 	public void onPlayStateChanged() {
 		
 	}
-
 }

@@ -31,6 +31,8 @@
         </activity>
         <activity android:name="com.zhntd.nick.rocklite.PlayActivity" >
         </activity>
+        <activity android:name="com.zhntd.nick.rocklite.PlayActivity2" >
+        </activity>
         <activity android:name="com.zhntd.nick.rocklite.OnlineMusicSite" >
         </activity>
 

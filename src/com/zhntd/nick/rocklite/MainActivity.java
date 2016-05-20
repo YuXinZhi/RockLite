@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -51,9 +52,11 @@ import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
  */
 public class MainActivity extends FragmentActivity implements OnClickListener, StateChangedListener {
 
+	// 绑定服务
 	private ServiceConnection mServiceConnection;
 	private CoreService mCoreService;
 
+	// 导航栏适配器
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
 	// Actionbar中的图标
@@ -82,7 +85,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		// 音量控制键控制音乐音量
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		setContentView(R.layout.activity_main);
 
 		if (mRootLayout == null) {
@@ -150,6 +154,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		return super.onKeyDown(keyCode, event);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void initPager() {
 
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -274,7 +279,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, PlayActivity.class);
+				Intent intent = new Intent(MainActivity.this, PlayActivity2.class);
 				startActivity(intent);
 			}
 		});
@@ -361,6 +366,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		super.onDestroy();
 	}
 
+	// 顶部适配器
 	public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
 		public SectionsPagerAdapter(FragmentManager fm) {
@@ -423,6 +429,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		}
 	}
 
+	// 播放按钮
 	@Override
 	public void onClick(View v) {
 		int btnId = v.getId();
@@ -454,7 +461,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	 */
 	@Override
 	public void onPlayStateChanged() {
+		// 播放/暂停按钮
 		updateControlButtonBackground();
+		// 专辑封面
 		updateArtImage(mArtImageView);
 		updateTitle(mCoreService.getCurrentTitle());
 		updatePrisedImg();

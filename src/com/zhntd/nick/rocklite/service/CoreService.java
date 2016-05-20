@@ -3,9 +3,12 @@ package com.zhntd.nick.rocklite.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zhntd.nick.rocklite.MainActivity;
+import com.zhntd.nick.rocklite.PlayActivity1;
 import com.zhntd.nick.rocklite.Project;
 import com.zhntd.nick.rocklite.R;
 import com.zhntd.nick.rocklite.modle.Track;
@@ -73,6 +76,8 @@ public class CoreService extends Service {
 
 	private QuerTools mQuerTools;
 
+	private ExecutorService mProgressUpdatedListener = Executors.newSingleThreadExecutor();
+
 	// 设置歌曲列表当前歌曲
 	public void setCurrentCursor(int cursor) {
 		this.mCursor = cursor;
@@ -85,6 +90,12 @@ public class CoreService extends Service {
 	public String getCurrentTitle() {
 		if (mPlayList != null)
 			return mPlayList.get(mCursor).getTitle();
+		return null;
+	}
+
+	public String getCurrentArstist() {
+		if (mPlayList != null)
+			return mPlayList.get(mCursor).getArtist();
 		return null;
 	}
 
@@ -307,11 +318,18 @@ public class CoreService extends Service {
 		return myBinder;
 	}
 
-	public void setActivityCallback(MainActivity activity) {
+	//凡是实现该StateChangedListener的都可以监听
+	public void setActivityCallback(StateChangedListener stateChangedListener) {
+		// 监听activity状态变化
+		mStateChangedListener = stateChangedListener;
+		mActivityCallback = (Activity) stateChangedListener;
+	}
+
+	/*public void setActivityCallback(PlayActivity1 activity) {
 		// 监听activity状态变化
 		mStateChangedListener = activity;
 		mActivityCallback = activity;
-	}
+	}*/
 
 	@Override
 	public void onCreate() {
@@ -321,11 +339,16 @@ public class CoreService extends Service {
 		initNotification();
 		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
 		mQuerTools = new QuerTools(this);
+		// 开始更新进度的线程
+		mProgressUpdatedListener.execute(mPublishProgressRunnable);
 		super.onCreate();
 	}
 
 	@Override
 	public void onDestroy() {
+		if (!mProgressUpdatedListener.isShutdown())
+			mProgressUpdatedListener.shutdownNow();
+		mProgressUpdatedListener = null;
 		unregisterReceiver(mHeadSetPlugBroadcastReceiver);
 		unregisterReceiver(mPhoneStateChangeListener);
 		unregisterReceiver(mNotiControlReceiver);
@@ -571,4 +594,16 @@ public class CoreService extends Service {
 		return mediaPlayer != null && mediaPlayer.isPlaying();
 	}
 
+	/**
+	 * 继续播放
+	 * 
+	 * @return 当前播放的位置 默认为0
+	 */
+	public int resume() {
+		if (isPlaying())
+			return -1;
+		mediaPlayer.start();
+
+		return mCursor;
+	}
 }

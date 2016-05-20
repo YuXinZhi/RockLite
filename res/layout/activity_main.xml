@@ -29,6 +29,8 @@
             android:layout_height="match_parent"
             android:background="@android:color/transparent" />
 
+        <!-- 抽屉菜单 -->
+
         <fragment
             android:id="@+id/navigation_drawer"
             android:name="com.zhntd.nick.rocklite.fragment.MenuDrawer"
@@ -37,6 +39,7 @@
             android:layout_gravity="start"
             android:background="@android:color/transparent" />
     </android.support.v4.widget.DrawerLayout>
+    <!-- 底部控制播放 -->
 
     <RelativeLayout
         android:id="@+id/relativeLayout1"
