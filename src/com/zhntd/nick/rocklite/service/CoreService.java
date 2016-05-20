@@ -128,15 +128,13 @@ public class CoreService extends Service {
 		return -1;
 	}
 
-	/**
-	 * @return
-	 */
+	// 获得当前的背景图片
 	public Bitmap getCurrentTrackArt() {
 
 		return ImageLoader.getInstance().loadImageSync(getCurrentAlbumPath());
 	}
 
-	// 背景图片
+	// 获得当前模糊化的背景图片
 	public Drawable getBluredCurrentArt() {
 		Bitmap bm = getCurrentTrackArt();
 		if (bm == null) {
@@ -316,18 +314,18 @@ public class CoreService extends Service {
 		return myBinder;
 	}
 
-	//凡是实现该StateChangedListener的都可以监听
+	// 凡是实现该StateChangedListener的都可以监听
 	public void setActivityCallback(StateChangedListener stateChangedListener) {
 		// 监听activity状态变化
 		mStateChangedListener = stateChangedListener;
 		mActivityCallback = (Activity) stateChangedListener;
 	}
 
-	/*public void setActivityCallback(PlayActivity1 activity) {
-		// 监听activity状态变化
-		mStateChangedListener = activity;
-		mActivityCallback = activity;
-	}*/
+	/*
+	 * public void setActivityCallback(PlayActivity1 activity) { //
+	 * 监听activity状态变化 mStateChangedListener = activity; mActivityCallback =
+	 * activity; }
+	 */
 
 	@Override
 	public void onCreate() {
@@ -453,6 +451,7 @@ public class CoreService extends Service {
 		}
 	}
 
+	// 异步获得产生模糊背景图像
 	final class BlurImageCreater extends AsyncTask<Void, Void, Drawable> {
 
 		@Override

@@ -10,16 +10,21 @@ import com.zhntd.nick.rocklite.service.CoreService;
 import com.zhntd.nick.rocklite.service.CoreService.MyBinder;
 import com.zhntd.nick.rocklite.service.CoreService.OnMusicEventListener;
 import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
+import com.zhntd.nick.rocklite.utils.ImageTools;
 import com.zhntd.nick.rocklite.views.CDView;
 import com.zhntd.nick.rocklite.views.LrcView;
 import com.zhntd.nick.rocklite.views.PagerIndicator;
+import com.zhntd.nick.rocklite.views.PlayBgShape;
 import com.zhntd.nick.rocklite.views.PlayPageTransformer;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -31,8 +36,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
@@ -76,10 +81,22 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 		if (mRootLayout == null)
 			mRootLayout = (LinearLayout) findViewById(R.id.ll_play_container);
 		findTop();
-		initPages();
-		initSeekBar();
 		initImageLoader(this);
+		initPages();
+		initPager();
+		initSeekBar();
+		// 绑定服务
+		bindToService();
+		// 启动服务
+		startService();
+
 		initAnim();
+	}
+
+	void startService() {
+		final Intent intent = new Intent();
+		intent.setClass(PlayActivity1.this, CoreService.class);
+		startService(intent);
 	}
 
 	private void initSeekBar() {
@@ -202,24 +219,48 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 
 	@Override
 	public void onPlayStateChanged() {
+		updateTrackInfo();
+		updateControlButtonBackground();
+		updateBackground();
 	}
 
-	private void updateTitle() {
+	private void updateTrackInfo() {
+		mTitleTextView.setText(mCoreService.getCurrentTitle());
+		mArtistTextView.setText(mCoreService.getCurrentArtist());
+		Bitmap bmp = mCoreService.getCurrentTrackArt();
+		if (bmp == null)
+			bmp = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		mCdView.setImage(ImageTools.scaleBitmap(bmp, (int) (App.sScreenWidth * 0.7)));
+	}
 
+	private void updateControlButtonBackground() {
+		if (mCoreService.isPlaying()) {
+			mCdView.start();
+			mStartPlayButton.setImageResource(R.drawable.player_btn_pause_normal);
+		} else {
+			mCdView.pause();
+			mStartPlayButton.setImageResource(R.drawable.player_btn_play_normal);
+		}
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.ib_play_pre:
+			mCoreService.playPreviousTrack();
 			break;
 		case R.id.ib_play_start:
-
+			if (mCoreService.getIsPlaying()) {
+				mCoreService.pausePlayer();
+			} else {
+				mCoreService.resumePlayer();
+			}
 			break;
 		case R.id.ib_play_next:
-
+			mCoreService.playNextTrack();
 			break;
 		case R.id.iv_play_back:
+			finish();
 			break;
 		default:
 			break;
@@ -261,15 +302,6 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 
 	}
 
-	// 服务的回调函数
-	public void onBlurReady(Drawable drawable) {
-		if (drawable != null) {
-			mRootLayout.setBackground(drawable);
-			mRootLayout.startAnimation(mAnimationFade);
-			drawable = null;
-		}
-	}
-
 	private void initAnim() {
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 	}
@@ -280,6 +312,11 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 	private OnMusicEventListener mMusicEventListener = new OnMusicEventListener() {
 		@Override
 		public void onPublish(int progress) {
+			mSeekBar.setProgress(progress);
+			if (mLrcViewOnFirstPage.hasLrc())
+				mLrcViewOnFirstPage.changeCurrent(progress);
+			if (mLrcViewOnSecondPage.hasLrc())
+				mLrcViewOnSecondPage.changeCurrent(progress);
 		}
 
 		@Override
@@ -296,4 +333,16 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 				.build();
 		ImageLoader.getInstance().init(config);
 	}
+
+	@SuppressWarnings("deprecation")
+	private void updateBackground() {
+
+		Bitmap bgBitmap = mCoreService.getCurrentTrackArt();
+		if (bgBitmap == null) {
+			bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		}
+
+		mRootLayout.setBackgroundDrawable(new ShapeDrawable(new PlayBgShape(bgBitmap)));
+	}
+
 }

@@ -279,7 +279,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, PlayActivity2.class);
+				Intent intent = new Intent(MainActivity.this, PlayActivity1.class);
 				startActivity(intent);
 			}
 		});
@@ -362,6 +362,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	@Override
 	protected void onDestroy() {
+		// 退出时解绑服务
 		unbindService(mServiceConnection);
 		super.onDestroy();
 	}
@@ -401,6 +402,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		return mFragments;
 	}
 
+	// 功能和图像变化分离
 	public void updateControlButtonBackground() {
 		if (mCoreService.getIsPlaying()) {
 			mPlayButton.setImageResource(R.drawable.notification_pause);
