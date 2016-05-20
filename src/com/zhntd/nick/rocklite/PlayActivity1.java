@@ -2,14 +2,21 @@ package com.zhntd.nick.rocklite;
 
 import java.util.ArrayList;
 
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.zhntd.nick.rocklite.service.CoreService;
 import com.zhntd.nick.rocklite.service.CoreService.MyBinder;
+import com.zhntd.nick.rocklite.service.CoreService.OnMusicEventListener;
 import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
 import com.zhntd.nick.rocklite.views.CDView;
 import com.zhntd.nick.rocklite.views.LrcView;
 import com.zhntd.nick.rocklite.views.PagerIndicator;
+import com.zhntd.nick.rocklite.views.PlayPageTransformer;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
@@ -23,13 +30,16 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 public class PlayActivity1 extends FragmentActivity implements OnClickListener, StateChangedListener {
@@ -44,7 +54,7 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 	private ViewPager mViewPager; // cd or lrc
 
 	private CDView mCdView; // cd
-	private SeekBar mPlaySeekBar; // seekbar
+	private SeekBar mSeekBar; // seekbar
 	private ImageButton mStartPlayButton; // start or pause
 	private LrcView mLrcViewOnFirstPage; // single line lrc
 	private LrcView mLrcViewOnSecondPage; // 7 lines lrc
@@ -59,18 +69,63 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		setContentView(R.layout.play_activity_layout);
+
+		if (mRootLayout == null)
+			mRootLayout = (LinearLayout) findViewById(R.id.ll_play_container);
 		findTop();
+		initPages();
+		initSeekBar();
+		initImageLoader(this);
+		initAnim();
 	}
-	
+
+	private void initSeekBar() {
+		mSeekBar = (SeekBar) findViewById(R.id.sb_play_progress);
+		// 动态设置seekbar的margin
+		MarginLayoutParams p = (MarginLayoutParams) mSeekBar.getLayoutParams();
+		p.leftMargin = (int) (App.sScreenWidth * 0.1);
+		p.rightMargin = (int) (App.sScreenWidth * 0.1);
+
+		mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+	}
+
+	private OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
+
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			int progress = seekBar.getProgress();
+			mCoreService.seek(progress);
+			mLrcViewOnFirstPage.onDrag(progress);
+			mLrcViewOnSecondPage.onDrag(progress);
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+
+		}
+
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+		}
+	};
+
+	@Override
+	protected void onResume() {
+		bindService(new Intent(this, CoreService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
+		super.onResume();
+	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 	}
 
 	private void findTop() {
-		mRootLayout = (LinearLayout) findViewById(R.id.ll_play_container);
+
 		// 左上角返回
 		mPlayBackImageView = (ImageView) findViewById(R.id.iv_play_back);
 		mTitleTextView = (TextView) findViewById(R.id.tv_music_title);
@@ -88,27 +143,14 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 	// 初始化PagerView
 	@SuppressWarnings("deprecation")
 	private void initPager() {
+		// 原点指示器
+		mPagerIndicator = (PagerIndicator) findViewById(R.id.pi_play_indicator);
+		mPagerIndicator.create(mPages.size());
 		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setPageTransformer(true, new PlayPageTransformer());
 		mViewPager.setAdapter(mPagerAapter);
-		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
-			
-			@Override
-			public void onPageSelected(int arg0) {
-				
-			}
-			
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		mViewPager.setOnPageChangeListener(mOnPageChangeListener);
+		mViewPager.setAdapter(mPagerAapter);
 	}
 
 	private PagerAdapter mPagerAapter = new PagerAdapter() {
@@ -132,6 +174,30 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 			container.removeView((View) object);
 		};
 
+	};
+
+	private OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
+
+		@Override
+		public void onPageSelected(int position) {
+			if (position == 0) {
+				if (mCoreService.isPlaying())
+					mCdView.start();
+			} else {
+				mCdView.pause();
+			}
+			mPagerIndicator.current(position);
+		}
+
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+
+		}
 	};
 
 	@Override
@@ -179,8 +245,10 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 				MyBinder myBinder = (MyBinder) iBinder;
 				mCoreService = myBinder.getService();
 				Log.i("music", mCoreService.toString());
-				// 告诉服务监听MainActivity
+				// 告诉服务监听
 				mCoreService.setActivityCallback(PlayActivity1.this);
+				// 设置音乐进度监听
+				mCoreService.setOnMusicEventListener(mMusicEventListener);
 
 				// 服务连接后更新页面更新页面
 				onPlayStateChanged();
@@ -193,8 +261,7 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 
 	}
 
-	
-	//服务的回调函数
+	// 服务的回调函数
 	public void onBlurReady(Drawable drawable) {
 		if (drawable != null) {
 			mRootLayout.setBackground(drawable);
@@ -202,10 +269,31 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 			drawable = null;
 		}
 	}
-	
+
 	private void initAnim() {
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 	}
 
+	/**
+	 * 音乐播放服务回调接口的实现类
+	 */
+	private OnMusicEventListener mMusicEventListener = new OnMusicEventListener() {
+		@Override
+		public void onPublish(int progress) {
+		}
 
+		@Override
+		public void onChange(int position) {
+		}
+	};
+
+	public static void initImageLoader(Context context) {
+		// 自定义图片加载配置
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+				.threadPriority(Thread.NORM_PRIORITY - 2).denyCacheImageMultipleSizesInMemory()
+				.diskCacheFileNameGenerator(new Md5FileNameGenerator()).tasksProcessingOrder(QueueProcessingType.LIFO)
+				.writeDebugLogs() // Remove for release app
+				.build();
+		ImageLoader.getInstance().init(config);
+	}
 }

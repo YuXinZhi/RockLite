@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zhntd.nick.rocklite.MainActivity;
-import com.zhntd.nick.rocklite.PlayActivity1;
 import com.zhntd.nick.rocklite.Project;
 import com.zhntd.nick.rocklite.R;
 import com.zhntd.nick.rocklite.modle.Track;
@@ -32,7 +31,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.media.audiofx.Visualizer.MeasurementPeakRms;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;

@@ -28,6 +28,7 @@ public class AllTracks extends Base {
 	private TrackListAdapter mAdapter;
 
 	private MainActivity mActivity;
+	// 调用MainActivity中的服务获取播放列表
 	private CoreService mServiceCallback;
 
 	@Override
