@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.MediaColumns;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
 @SuppressLint("DefaultLocale")
@@ -40,7 +41,7 @@ public class MediaUtils {
 		ContentResolver cr = c.getContentResolver();
 		Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
 				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-
+		Log.i("cursor", cursor.getCount() + "");
 		if (cursor != null && cursor.getCount() > 0) {
 			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
@@ -80,6 +81,7 @@ public class MediaUtils {
 			e.printStackTrace();
 			return list;
 		}
+		Log.i("getTrackList", list.size() + "");
 		return list;
 
 	}
@@ -131,21 +133,21 @@ public class MediaUtils {
 
 	/**
 	 * 获取应用程序使用的本地目录
+	 * 
 	 * @return
 	 */
 	public static String getAppLocalDir() {
 		String dir = null;
 
 		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTED)) {
-			dir = Environment.getExternalStorageDirectory() + File.separator
-					+ "liteplayer" + File.separator;
+			dir = Environment.getExternalStorageDirectory() + File.separator + "liteplayer" + File.separator;
 		} else {
 			dir = App.sContext.getFilesDir() + File.separator + "liteplayer" + File.separator;
 		}
 
 		return mkdir(dir);
 	}
-	
+
 	/**
 	 * 获取歌词存放目录
 	 * 
@@ -158,6 +160,7 @@ public class MediaUtils {
 
 	/**
 	 * 创建文件夹
+	 * 
 	 * @param dir
 	 * @return
 	 */
@@ -165,12 +168,13 @@ public class MediaUtils {
 		File f = new File(dir);
 		if (!f.exists()) {
 			for (int i = 0; i < 5; i++) {
-				if(f.mkdirs()) return dir;
+				if (f.mkdirs())
+					return dir;
 			}
 			return null;
 		}
-		
+
 		return dir;
 	}
-	
+
 }

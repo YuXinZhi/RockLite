@@ -35,7 +35,7 @@ import android.widget.TextView;
  * 
  * @author qibin
  */
-public class PlayActivity2 extends BaseActivity implements OnClickListener,StateChangedListener {
+public class PlayActivity2 extends BaseActivity implements OnClickListener, StateChangedListener {
 	private LinearLayout mPlayContainer;
 	private ImageView mPlayBackImageView; // back button
 	private TextView mMusicTitle; // music title
@@ -298,23 +298,24 @@ public class PlayActivity2 extends BaseActivity implements OnClickListener,State
 	}
 
 	private void updateTrackInfo() {
-		// 设置背景
-		Bitmap bgBitmap = mPlayService.getCurrentTrackArt();
-		if (bgBitmap == null) {
-			bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		// 获取专辑封面更新
+		Bitmap trackArt = mPlayService.getCurrentTrackArt();
+		if (trackArt == null) {
+			trackArt = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 		}
 
-		mPlayContainer.setBackgroundDrawable(new ShapeDrawable(new PlayBgShape(bgBitmap)));
+		mCdView.setImage(ImageTools.scaleBitmap(trackArt, (int) (App.sScreenWidth * 0.7)));
+		mPlayContainer.setBackgroundDrawable(new ShapeDrawable(new PlayBgShape(trackArt)));
 
-		// 设置圆形专辑封面
-		Bitmap bmp = mPlayService.getCurrentTrackArt();
-		if (bmp == null)
-			bmp = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-		mCdView.setImage(ImageTools.scaleBitmap(bmp, (int) (App.sScreenWidth * 0.7)));
+		// // 设置圆形专辑封面
+		// Bitmap bmp = mPlayService.getCurrentTrackArt();
+		// if (bmp == null)
+		// bmp = BitmapFactory.decodeResource(getResources(),
+		// R.drawable.ic_launcher);
 	}
 
 	@Override
 	public void onPlayStateChanged() {
-		
+
 	}
 }

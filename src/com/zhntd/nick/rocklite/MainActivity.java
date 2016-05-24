@@ -3,6 +3,21 @@ package com.zhntd.nick.rocklite;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dk.animation.SwitchAnimationUtil;
+import com.dk.animation.SwitchAnimationUtil.AnimationType;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.zhntd.nick.rocklite.fragment.AllTracks;
+import com.zhntd.nick.rocklite.fragment.Base;
+import com.zhntd.nick.rocklite.fragment.MenuDrawer;
+import com.zhntd.nick.rocklite.fragment.Online;
+import com.zhntd.nick.rocklite.fragment.Praised;
+import com.zhntd.nick.rocklite.service.CoreService;
+import com.zhntd.nick.rocklite.service.CoreService.MyBinder;
+import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
+
 import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,21 +45,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.dk.animation.SwitchAnimationUtil;
-import com.dk.animation.SwitchAnimationUtil.AnimationType;
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.zhntd.nick.rocklite.fragment.AllTracks;
-import com.zhntd.nick.rocklite.fragment.Base;
-import com.zhntd.nick.rocklite.fragment.MenuDrawer;
-import com.zhntd.nick.rocklite.fragment.Online;
-import com.zhntd.nick.rocklite.fragment.Praised;
-import com.zhntd.nick.rocklite.service.CoreService;
-import com.zhntd.nick.rocklite.service.CoreService.MyBinder;
-import com.zhntd.nick.rocklite.service.CoreService.StateChangedListener;
 
 /**
  * 主页面
@@ -126,6 +126,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	}
 
 	private void initDrawer() {
+		//通过FragmentManager调出菜单界面的Fragment
 		mNavigationDrawerFragment = (MenuDrawer) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
 		// 设置菜单布局
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -279,7 +280,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MainActivity.this, PlayActivity1.class);
+				Intent intent = new Intent(MainActivity.this, PlayActivity2.class);
 				startActivity(intent);
 			}
 		});
@@ -297,6 +298,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				}
 				// 更新收藏页面的收藏按钮
 				mFragments.get(1).onPraisedPressed();
+				Log.i("mPraiseButton clicked", mFragments.get(1)+"");
 			}
 		});
 	}
@@ -340,7 +342,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				// MyBinder在服务中定义
 				MyBinder myBinder = (MyBinder) iBinder;
 				mCoreService = myBinder.getService();
-				Log.i("music", mCoreService.toString());
+				Log.i("MAIN", mCoreService.toString());
 				// 告诉服务监听MainActivity
 				mCoreService.setActivityCallback(MainActivity.this);
 

@@ -5,16 +5,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.media.audiofx.Visualizer.MeasurementPeakRms;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -24,6 +14,14 @@ import com.zhntd.nick.rocklite.R;
 import com.zhntd.nick.rocklite.modle.Track;
 import com.zhntd.nick.rocklite.utils.MediaUtils;
 import com.zhntd.nick.rocklite.views.ViewHolderList;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 
 /**
  * @author Nick
@@ -52,11 +50,11 @@ public class TrackListAdapter extends BaseAdapter {
 	/**
 	 * @param scrolling
 	 */
-	public void isListScrolling(boolean scrolling) {
-		this.isListScrolling = scrolling;
-		if (!scrolling)
-			notifyDataSetChanged();
-	}
+//	public void isListScrolling(boolean scrolling) {
+//		this.isListScrolling = scrolling;
+//		if (!scrolling)
+//			notifyDataSetChanged();
+//	}
 
 	public void updateList(List<Track> tracks) {
 		this.mTracks = tracks;
@@ -119,6 +117,7 @@ public class TrackListAdapter extends BaseAdapter {
 		public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 			if (loadedImage != null) {
 				ImageView imageView = (ImageView) view;
+				// 优先获取缓存的图片
 				boolean firstDisplay = !displayedImages.contains(imageUri);
 				FadeInBitmapDisplayer.animate(imageView, 1000);
 				if (firstDisplay) {
@@ -127,6 +126,5 @@ public class TrackListAdapter extends BaseAdapter {
 			}
 		}
 	}
-
 
 }

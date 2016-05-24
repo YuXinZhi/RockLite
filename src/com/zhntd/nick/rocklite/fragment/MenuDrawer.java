@@ -1,5 +1,7 @@
 package com.zhntd.nick.rocklite.fragment;
 
+import com.zhntd.nick.rocklite.R;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -11,8 +13,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.zhntd.nick.rocklite.R;
 
 public class MenuDrawer extends Fragment {
 

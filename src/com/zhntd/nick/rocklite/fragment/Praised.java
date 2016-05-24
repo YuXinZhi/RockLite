@@ -38,11 +38,12 @@ public class Praised extends Base {
 		return mListView;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
-		Log.i("music", mServiceCallback.toString());
+		Log.i("Praised", mServiceCallback.toString());
 		super.onAttach(activity);
 	}
 
@@ -67,7 +68,10 @@ public class Praised extends Base {
 	 * @param tracks
 	 */
 	void inflateListView(final List<Track> tracks) {
-
+		for (int i = 0; i < tracks.size(); i++) {
+			Log.i("title==", tracks.get(i).getTitle());
+		}
+		Log.i("mAdapter==null", mAdapter + "");
 		if (mAdapter == null) {
 			mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
 			mListView.setAdapter(mAdapter);

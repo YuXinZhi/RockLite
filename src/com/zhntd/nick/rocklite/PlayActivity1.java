@@ -2,10 +2,6 @@ package com.zhntd.nick.rocklite;
 
 import java.util.ArrayList;
 
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.zhntd.nick.rocklite.service.CoreService;
 import com.zhntd.nick.rocklite.service.CoreService.MyBinder;
 import com.zhntd.nick.rocklite.service.CoreService.OnMusicEventListener;
@@ -23,7 +19,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -39,7 +34,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.Window;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,14 +47,14 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 	private CoreService mCoreService;
 	// 根布局
 	private LinearLayout mRootLayout;
-	private ImageView mPlayBackImageView; // back button
+	private ImageView mBackImageView; // back button
 	private TextView mTitleTextView; // music title
 	private TextView mArtistTextView; // singer
 	private ViewPager mViewPager; // cd or lrc
 
 	private CDView mCdView; // cd
 	private SeekBar mSeekBar; // seekbar
-	private ImageButton mStartPlayButton; // start or pause
+	private ImageButton mPlayImageButton; // start or pause
 	private LrcView mLrcViewOnFirstPage; // single line lrc
 	private LrcView mLrcViewOnSecondPage; // 7 lines lrc
 	private PagerIndicator mPagerIndicator; // indicator
@@ -78,19 +72,43 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		setContentView(R.layout.play_activity_layout);
 
-		if (mRootLayout == null)
-			mRootLayout = (LinearLayout) findViewById(R.id.ll_play_container);
-		findTop();
-		initImageLoader(this);
-		initPages();
-		initPager();
-		initSeekBar();
+		// initPages();
+		// initPager();
+		// initSeekBar();
+		setupViews();
+
 		// 绑定服务
 		bindToService();
-		// 启动服务
-		startService();
+		// // 启动服务
+		// startService();
 
-		initAnim();
+	}
+
+	private void setupViews() {
+		findViews();
+		mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+		initPages();
+		initPager();
+
+	}
+
+	// 先找出控件
+	private void findViews() {
+		mRootLayout = (LinearLayout) findViewById(R.id.ll_play_container);
+		// mBackImageView = (ImageView) findViewById(R.id.iv_play_back);
+		mTitleTextView = (TextView) findViewById(R.id.tv_music_title);
+		mViewPager = (ViewPager) findViewById(R.id.vp_play_container);
+		mSeekBar = (SeekBar) findViewById(R.id.sb_play_progress);
+
+		mPlayImageButton = (ImageButton) findViewById(R.id.ib_play_start);
+
+		// 圆形指示器
+		mPagerIndicator = (PagerIndicator) findViewById(R.id.pi_play_indicator);
+		// 动态设置seekbar的margin
+		MarginLayoutParams p = (MarginLayoutParams) mSeekBar.getLayoutParams();
+		p.leftMargin = (int) (App.sScreenWidth * 0.1);
+		p.rightMargin = (int) (App.sScreenWidth * 0.1);
+
 	}
 
 	void startService() {
@@ -99,15 +117,15 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 		startService(intent);
 	}
 
-	private void initSeekBar() {
-		mSeekBar = (SeekBar) findViewById(R.id.sb_play_progress);
-		// 动态设置seekbar的margin
-		MarginLayoutParams p = (MarginLayoutParams) mSeekBar.getLayoutParams();
-		p.leftMargin = (int) (App.sScreenWidth * 0.1);
-		p.rightMargin = (int) (App.sScreenWidth * 0.1);
-
-		mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
-	}
+	// private void initSeekBar() {
+	// mSeekBar = (SeekBar) findViewById(R.id.sb_play_progress);
+	// // 动态设置seekbar的margin
+	// MarginLayoutParams p = (MarginLayoutParams) mSeekBar.getLayoutParams();
+	// p.leftMargin = (int) (App.sScreenWidth * 0.1);
+	// p.rightMargin = (int) (App.sScreenWidth * 0.1);
+	//
+	// mSeekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+	// }
 
 	private OnSeekBarChangeListener mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
 
@@ -132,27 +150,28 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 
 	@Override
 	protected void onResume() {
-		bindService(new Intent(this, CoreService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
+		bindToService();
 		super.onResume();
 	}
 
 	@Override
-	protected void onDestroy() {
+	protected void onPause() {
+		unbindService(mServiceConnection);
 		super.onDestroy();
-	}
-
-	private void findTop() {
-
-		// 左上角返回
-		mPlayBackImageView = (ImageView) findViewById(R.id.iv_play_back);
-		mTitleTextView = (TextView) findViewById(R.id.tv_music_title);
 	}
 
 	// 初始化PagerView子页面
 	private void initPages() {
 		mPages = new ArrayList<View>(2);
+		// 歌曲图片页面
 		View cdView = View.inflate(this, R.layout.play_pager_item_1, null);
+		mCdView = (CDView) cdView.findViewById(R.id.play_cdview);
+		mArtistTextView = (TextView) cdView.findViewById(R.id.play_singer);
+		mLrcViewOnFirstPage = (LrcView) cdView.findViewById(R.id.play_first_lrc);
+
+		// 歌词页面
 		View lrcView = View.inflate(this, R.layout.play_pager_item_2, null);
+		mLrcViewOnSecondPage = (LrcView) lrcView.findViewById(R.id.play_first_lrc_2);
 		mPages.add(cdView);
 		mPages.add(lrcView);
 	}
@@ -160,12 +179,11 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 	// 初始化PagerView
 	@SuppressWarnings("deprecation")
 	private void initPager() {
+
+		mViewPager.setPageTransformer(true, new PlayPageTransformer());
 		// 原点指示器
 		mPagerIndicator = (PagerIndicator) findViewById(R.id.pi_play_indicator);
 		mPagerIndicator.create(mPages.size());
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setPageTransformer(true, new PlayPageTransformer());
-		mViewPager.setAdapter(mPagerAapter);
 		mViewPager.setOnPageChangeListener(mOnPageChangeListener);
 		mViewPager.setAdapter(mPagerAapter);
 	}
@@ -224,6 +242,7 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 		updateBackground();
 	}
 
+	@SuppressWarnings("deprecation")
 	private void updateTrackInfo() {
 		mTitleTextView.setText(mCoreService.getCurrentTitle());
 		mArtistTextView.setText(mCoreService.getCurrentArtist());
@@ -231,15 +250,16 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 		if (bmp == null)
 			bmp = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 		mCdView.setImage(ImageTools.scaleBitmap(bmp, (int) (App.sScreenWidth * 0.7)));
+		mRootLayout.setBackgroundDrawable(new ShapeDrawable(new PlayBgShape(bmp)));
 	}
 
 	private void updateControlButtonBackground() {
 		if (mCoreService.isPlaying()) {
 			mCdView.start();
-			mStartPlayButton.setImageResource(R.drawable.player_btn_pause_normal);
+			mPlayImageButton.setImageResource(R.drawable.player_btn_pause_normal);
 		} else {
 			mCdView.pause();
-			mStartPlayButton.setImageResource(R.drawable.player_btn_play_normal);
+			mPlayImageButton.setImageResource(R.drawable.player_btn_play_normal);
 		}
 	}
 
@@ -302,10 +322,6 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 
 	}
 
-	private void initAnim() {
-		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-	}
-
 	/**
 	 * 音乐播放服务回调接口的实现类
 	 */
@@ -323,16 +339,6 @@ public class PlayActivity1 extends FragmentActivity implements OnClickListener, 
 		public void onChange(int position) {
 		}
 	};
-
-	public static void initImageLoader(Context context) {
-		// 自定义图片加载配置
-		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-				.threadPriority(Thread.NORM_PRIORITY - 2).denyCacheImageMultipleSizesInMemory()
-				.diskCacheFileNameGenerator(new Md5FileNameGenerator()).tasksProcessingOrder(QueueProcessingType.LIFO)
-				.writeDebugLogs() // Remove for release app
-				.build();
-		ImageLoader.getInstance().init(config);
-	}
 
 	@SuppressWarnings("deprecation")
 	private void updateBackground() {

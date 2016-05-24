@@ -366,7 +366,7 @@ public class CoreService extends Service {
 
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setContent(mRemoteView)
 				.setContentTitle(getCurrentTitle()).setContentText(getCurrentTitle()).setTicker(getCurrentTitle())
-				.setSmallIcon(R.drawable.ic_launcher).setOngoing(true);
+				.setSmallIcon(R.drawable.ic_launcher).setOngoing(false);
 
 		if (playIntent == null) {
 			playIntent = new Intent(this, TrackPlayReceiver.class);

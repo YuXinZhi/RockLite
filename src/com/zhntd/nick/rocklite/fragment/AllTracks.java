@@ -2,8 +2,15 @@ package com.zhntd.nick.rocklite.fragment;
 
 import java.util.List;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.zhntd.nick.rocklite.MainActivity;
+import com.zhntd.nick.rocklite.R;
+import com.zhntd.nick.rocklite.loaders.TrackListAdapter;
+import com.zhntd.nick.rocklite.modle.Track;
+import com.zhntd.nick.rocklite.service.CoreService;
+import com.zhntd.nick.rocklite.utils.MediaUtils;
+
 import android.app.Activity;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,14 +20,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.zhntd.nick.rocklite.R;
-import com.zhntd.nick.rocklite.MainActivity;
-import com.zhntd.nick.rocklite.loaders.TrackListAdapter;
-import com.zhntd.nick.rocklite.modle.Track;
-import com.zhntd.nick.rocklite.service.CoreService;
-import com.zhntd.nick.rocklite.utils.MediaUtils;
 
 public class AllTracks extends Base {
 
@@ -38,11 +37,12 @@ public class AllTracks extends Base {
 		return mListView;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
-		Log.i("nick", mServiceCallback.toString());
+		Log.i("AllTracks", mServiceCallback.toString());
 		super.onAttach(activity);
 	}
 
@@ -66,7 +66,7 @@ public class AllTracks extends Base {
 	 * @param tracks
 	 */
 	void inflateListView(final List<Track> tracks) {
-
+		Log.i("tracks", tracks.size() + "=============");
 		mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
 		mListView.setAdapter(mAdapter);
 
